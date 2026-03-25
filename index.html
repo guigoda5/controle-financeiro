@@ -3,56 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Controle Financeiro</title>
+    <title>Finanças Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f4f4;
-            --card-bg: #fff;
-            --text-color: #333;
-            --green: #2ecc71;
-            --red: #e74c3c;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-muted: #888;
+            --green: #00e676;
+            --red: #ff5252;
+            --purple: #bb86fc;
+            --border-radius: 12px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { width: 100%; max-width: 400px; }
-        h1 { text-align: center; margin-bottom: 20px; }
-        .balance-card { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
-        .balance-card h2 { font-size: 32px; margin-top: 10px; }
-        .summary { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .summary div { background: var(--card-bg); padding: 15px; border-radius: 8px; width: 48%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-        .money-plus { color: var(--green); font-size: 20px; font-weight: bold; }
-        .money-minus { color: var(--red); font-size: 20px; font-weight: bold; }
-        h3 { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-        .list { list-style-type: none; margin-bottom: 20px; }
-        .list li { background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; position: relative; margin-bottom: 10px; }
-        .list li.plus { border-right: 5px solid var(--green); }
-        .list li.minus { border-right: 5px solid var(--red); }
-        .delete-btn { background: var(--red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; opacity: 0; transition: opacity 0.3s; position: absolute; left: -40px; }
-        .list li:hover .delete-btn { opacity: 1; }
-        form { display: flex; flex-direction: column; }
-        input, select, button { padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #2980b9; }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 30px 15px; 
+        }
+        
+        .container { width: 100%; max-width: 450px; }
+        
+        h1 { text-align: center; margin-bottom: 25px; font-weight: 600; letter-spacing: 1px; }
+        
+        /* Filtro de Mês */
+        .month-selector { width: 100%; margin-bottom: 20px; text-align: center; }
+        .month-selector select { 
+            background-color: var(--card-bg); color: var(--text-color); 
+            border: 1px solid #333; font-size: 18px; padding: 10px; 
+            border-radius: var(--border-radius); outline: none; cursor: pointer;
+        }
+
+        /* Cartões de Resumo */
+        .balance-card { 
+            background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
+            padding: 25px; border-radius: var(--border-radius); 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3); text-align: center; margin-bottom: 20px; 
+            border-top: 4px solid var(--purple);
+        }
+        .balance-card h4 { font-weight: 300; color: var(--text-muted); text-transform: uppercase; font-size: 14px; }
+        .balance-card h2 { font-size: 38px; margin-top: 5px; font-weight: 600; }
+
+        .summary { display: flex; justify-content: space-between; margin-bottom: 25px; gap: 10px; }
+        .summary div { 
+            background: var(--card-bg); padding: 15px; border-radius: var(--border-radius); 
+            width: 100%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+        .summary h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+        .money-plus { color: var(--green); font-size: 18px; font-weight: 600; margin-top: 5px; }
+        .money-minus { color: var(--red); font-size: 18px; font-weight: 600; margin-top: 5px; }
+
+        /* Lista de Transações */
+        h3 { margin-bottom: 15px; font-size: 18px; color: var(--purple); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .list { list-style-type: none; margin-bottom: 30px; }
+        .list li { 
+            background: var(--card-bg); padding: 15px; border-radius: var(--border-radius); 
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; position: relative; transition: transform 0.2s;
+            border-left: 5px solid #333;
+        }
+        .list li:hover { transform: translateX(5px); }
+        .list li.plus { border-left-color: var(--green); }
+        .list li.minus { border-left-color: var(--red); }
+        
+        .transaction-info { display: flex; flex-direction: column; }
+        .transaction-title { font-weight: 600; font-size: 15px; }
+        .transaction-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px; color: #ddd; }
+        .badge-debt { background: rgba(255, 82, 82, 0.2); color: var(--red); border: 1px solid var(--red); }
+        
+        .delete-btn { 
+            background: var(--red); color: white; border: none; padding: 8px 12px; 
+            border-radius: 8px; cursor: pointer; opacity: 0; transition: opacity 0.3s; 
+            position: absolute; right: -50px; font-weight: bold;
+        }
+        .list li:hover .delete-btn { opacity: 1; right: 10px; }
+
+        /* Formulário Moderno */
+        form { display: flex; flex-direction: column; gap: 12px; background: var(--card-bg); padding: 20px; border-radius: var(--border-radius); }
+        input, select, button { 
+            padding: 12px; border: 1px solid #333; border-radius: 8px; 
+            font-size: 14px; background-color: var(--bg-color); color: var(--text-color); outline: none;
+        }
+        input:focus, select:focus { border-color: var(--purple); }
+        
+        .form-row { display: flex; gap: 10px; }
+        .form-row > * { flex: 1; }
+
+        button { 
+            background-color: var(--purple); color: #121212; border: none; 
+            cursor: pointer; font-weight: 600; font-size: 16px; margin-top: 10px; transition: 0.3s;
+        }
+        button:hover { background-color: #9d68dc; transform: translateY(-2px); }
+
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Minhas Finanças</h1>
+        <h1>Finanças Pro</h1>
+
+        <div class="month-selector">
+            <select id="month-filter">
+                <option value="all">Todos os Meses</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03" selected>Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+            </select>
+        </div>
 
         <div class="balance-card">
-            <h4>Saldo Atual</h4>
-            <h2 id="balance">R$ 0.00</h2>
+            <h4>Saldo do Mês</h4>
+            <h2 id="balance">R$ 0,00</h2>
         </div>
 
         <div class="summary">
             <div>
                 <h4>Receitas</h4>
-                <p id="money-plus" class="money-plus">+ R$ 0.00</p>
+                <p id="money-plus" class="money-plus">+ R$ 0,00</p>
             </div>
             <div>
                 <h4>Despesas</h4>
-                <p id="money-minus" class="money-minus">- R$ 0.00</p>
+                <p id="money-minus" class="money-minus">- R$ 0,00</p>
             </div>
         </div>
 
@@ -60,15 +147,34 @@
         <ul id="list" class="list">
             </ul>
 
-        <h3>Adicionar Transação</h3>
+        <h3>Nova Transação</h3>
         <form id="form">
-            <input type="text" id="text" placeholder="Nome (Ex: Salário, Padaria)..." required />
-            <select id="type">
-                <option value="plus">Entrada (+)</option>
-                <option value="minus">Saída (-)</option>
+            <input type="text" id="text" placeholder="Descrição (Ex: Supermercado)" required />
+            
+            <div class="form-row">
+                <input type="number" id="amount" placeholder="Valor (R$)" step="0.01" required />
+                <input type="date" id="date" required />
+            </div>
+
+            <div class="form-row">
+                <select id="type">
+                    <option value="minus">Saída (-)</option>
+                    <option value="plus">Entrada (+)</option>
+                </select>
+                <select id="payment-method">
+                    <option value="Pix/Dinheiro">Pix / Dinheiro</option>
+                    <option value="Débito">Cartão de Débito</option>
+                    <option value="Crédito">Cartão de Crédito</option>
+                </select>
+            </div>
+
+            <select id="debt-to">
+                <option value="Nenhum">Isso é uma dívida com alguém?</option>
+                <option value="Michele">Devo para: Michele</option>
+                <option value="Andressa">Devo para: Andressa</option>
             </select>
-            <input type="number" id="amount" placeholder="Valor (Ex: 150.50)" step="0.01" required />
-            <button type="submit">Adicionar</button>
+
+            <button type="submit">Adicionar Transação</button>
         </form>
     </div>
 
@@ -81,81 +187,116 @@
         const text = document.getElementById('text');
         const amount = document.getElementById('amount');
         const type = document.getElementById('type');
+        const dateInput = document.getElementById('date');
+        const paymentMethod = document.getElementById('payment-method');
+        const debtTo = document.getElementById('debt-to');
+        const monthFilter = document.getElementById('month-filter');
 
-        // Puxa as transações salvas no navegador ou cria um array vazio
+        // Preenche a data de hoje automaticamente no formulário
+        dateInput.valueAsDate = new Date();
+
         const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
         let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
 
-        // Adiciona transação
         function addTransaction(e) {
             e.preventDefault();
             let transactionAmount = parseFloat(amount.value);
             
-            // Se for saída, transforma o número em negativo
             if(type.value === 'minus') {
                 transactionAmount = -Math.abs(transactionAmount);
+            } else {
+                transactionAmount = Math.abs(transactionAmount);
             }
 
             const transaction = {
                 id: Math.floor(Math.random() * 100000000),
                 text: text.value,
-                amount: transactionAmount
+                amount: transactionAmount,
+                date: dateInput.value,
+                method: paymentMethod.value,
+                debt: debtTo.value
             };
 
             transactions.push(transaction);
-            addTransactionDOM(transaction);
-            updateValues();
             updateLocalStorage();
+            init();
 
             text.value = '';
             amount.value = '';
+            debtTo.value = 'Nenhum';
         }
 
-        // Adiciona a transação na lista visual
+        // Filtra as transações pelo mês selecionado
+        function getFilteredTransactions() {
+            const selectedMonth = monthFilter.value;
+            if (selectedMonth === 'all') return transactions;
+            
+            return transactions.filter(transaction => {
+                const transactionMonth = transaction.date.split('-')[1]; // Extrai o mês da data (YYYY-MM-DD)
+                return transactionMonth === selectedMonth;
+            });
+        }
+
         function addTransactionDOM(transaction) {
             const sign = transaction.amount < 0 ? '-' : '+';
             const item = document.createElement('li');
             item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
+            
+            // Monta as "etiquetas" (badges) embaixo do nome
+            let badges = `<span class="badge">${transaction.method}</span>`;
+            if(transaction.debt !== 'Nenhum') {
+                badges += `<span class="badge badge-debt">Dívida: ${transaction.debt}</span>`;
+            }
+            
+            // Formata a data para padrão BR
+            const dateBR = transaction.date.split('-').reverse().join('/');
+
             item.innerHTML = `
-                ${transaction.text} <span>${sign} R$ ${Math.abs(transaction.amount).toFixed(2)}</span>
+                <div class="transaction-info">
+                    <span class="transaction-title">${transaction.text}</span>
+                    <div class="transaction-meta">
+                        ${badges} <span>${dateBR}</span>
+                    </div>
+                </div>
+                <span>${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span>
                 <button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button>
             `;
             list.appendChild(item);
         }
 
-        // Atualiza os valores de Saldo, Receitas e Despesas
-        function updateValues() {
-            const amounts = transactions.map(transaction => transaction.amount);
+        function updateValues(filteredTransactions) {
+            const amounts = filteredTransactions.map(transaction => transaction.amount);
             const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
             const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
             const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
 
-            balance.innerText = `R$ ${total}`;
-            money_plus.innerText = `+ R$ ${income}`;
-            money_minus.innerText = `- R$ ${expense}`;
+            balance.innerText = `R$ ${total.replace('.', ',')}`;
+            money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
+            money_minus.innerText = `- R$ ${expense.replace('.', ',')}`;
         }
 
-        // Remove transação pelo ID
         function removeTransaction(id) {
             transactions = transactions.filter(transaction => transaction.id !== id);
             updateLocalStorage();
             init();
         }
 
-        // Salva no LocalStorage do navegador
         function updateLocalStorage() {
             localStorage.setItem('transactions', JSON.stringify(transactions));
         }
 
-        // Inicia o App
         function init() {
             list.innerHTML = '';
-            transactions.forEach(addTransactionDOM);
-            updateValues();
+            const filteredTransactions = getFilteredTransactions();
+            filteredTransactions.forEach(addTransactionDOM);
+            updateValues(filteredTransactions);
         }
 
-        init();
+        // Atualiza a tela quando o mês no topo é alterado
+        monthFilter.addEventListener('change', init);
         form.addEventListener('submit', addTransaction);
+
+        init();
     </script>
 </body>
 </html>
