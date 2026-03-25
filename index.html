@@ -28,37 +28,17 @@
             color: var(--text-color); min-height: 100vh; padding: 20px 30px; overflow-x: hidden;
         }
 
-        /* === CABEÇALHO CORRIGIDO === */
-        .top-nav { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 30px; flex-wrap: wrap; gap: 15px; 
-            position: relative; z-index: 100;
-        }
-        .header-left { 
-            display: flex; align-items: center; gap: 20px; flex-wrap: wrap; 
-        }
-        .main-title {
-            font-size: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
-            background: linear-gradient(45deg, var(--blue), var(--green));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 20px rgba(3, 218, 198, 0.2); margin: 0;
-        }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; position: relative; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .main-title { font-size: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(45deg, var(--blue), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 4px 20px rgba(3, 218, 198, 0.2); margin: 0; }
         .backup-controls { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn-small {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            color: var(--text-color); padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.3s;
-        }
+        .btn-small { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-color); padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.3s; }
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
-        /* Leitor Inteligente */
         .smart-reader-wrapper { position: relative; display: flex; flex-direction: column; align-items: flex-end; }
         .btn-reader { background: linear-gradient(45deg, var(--blue), #02a89b); color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(3, 218, 198, 0.3); transition: 0.3s; }
         .btn-reader:active { transform: scale(0.95); }
-        .reader-content { 
-            position: absolute; top: calc(100% + 10px); right: 0; width: 320px; 
-            max-height: 0; overflow: hidden; transition: max-height 0.5s, opacity 0.5s; opacity: 0; 
-            z-index: 101; 
-        }
+        .reader-content { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; max-height: 0; overflow: hidden; transition: max-height 0.5s, opacity 0.5s; opacity: 0; z-index: 101; }
         .reader-content.show { max-height: 450px; opacity: 1; }
         .custom-file-upload { display: block; width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px dashed var(--glass-border); border-radius: 10px; color: var(--text-muted); text-align: center; cursor: pointer; font-size: 12px; margin-bottom: 5px; }
         .reader-content textarea { height: 60px; }
@@ -66,31 +46,16 @@
 
         .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; }
 
-        .glass-panel {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); padding: 25px; position: relative; overflow: hidden;
-        }
-        .glass-panel::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        }
+        .glass-panel { background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); padding: 25px; position: relative; overflow: hidden; }
+        .glass-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); }
 
         h2.section-title { font-size: 18px; margin-bottom: 20px; font-weight: 600; color: var(--blue); }
         
-        /* Formulário */
         form { display: flex; flex-direction: column; gap: 12px; }
-        input, select, textarea { 
-            width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
-            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; -webkit-appearance: none;
-        }
+        input, select, textarea { width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; -webkit-appearance: none; }
         input:focus, select:focus, textarea:focus { border-color: var(--blue); background: rgba(0,0,0,0.5); }
         .form-row { display: flex; gap: 10px; }
-        .btn-submit { 
-            padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; 
-            color: #fff; cursor: pointer; transition: 0.3s; background-color: var(--red); box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
+        .btn-submit { padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; color: #fff; cursor: pointer; transition: 0.3s; background-color: var(--red); box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
         .btn-submit:active { transform: scale(0.96); }
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
@@ -104,10 +69,7 @@
         .goal-inputs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .goal-inputs input { padding: 10px; font-size: 13px; flex: 1; min-width: 120px;}
         .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; height: 14px; overflow: hidden; position: relative; border: 1px solid var(--glass-border); }
-        .progress-bar { 
-            height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); 
-            width: 0%; transition: width 0.8s ease-in-out; box-shadow: 0 0 10px var(--green);
-        }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); width: 0%; transition: width 0.8s ease-in-out; box-shadow: 0 0 10px var(--green); }
         .goal-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 12px; flex-wrap: wrap; gap: 10px; }
         .btn-add-goal { background: var(--blue); color: #000; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-add-goal:active { transform: scale(0.95); }
@@ -115,20 +77,11 @@
         .goal-history-list { list-style: none; margin-top: 15px; max-height: 120px; overflow-y: auto; }
         .goal-history-list::-webkit-scrollbar { width: 6px; }
         .goal-history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .goal-history-list li {
-            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
-            padding: 8px 12px; border-radius: 8px; margin-bottom: 6px;
-            display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted);
-        }
+        .goal-history-list li { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
         .goal-val { color: var(--green); font-weight: 600; }
 
         .list { list-style: none; min-height: 150px; position: relative; }
-        .list li {
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px;
-            padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.2); animation: fadeIn 0.5s ease-out forwards;
-        }
+        .list li { background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.2); animation: fadeIn 0.5s ease-out forwards; }
         .list li.plus { border-left: 4px solid var(--green); }
         .list li.minus { border-left: 4px solid var(--red); }
         .item-info { display: flex; flex-direction: column; width: 65%; }
@@ -147,19 +100,15 @@
             body { padding: 15px 10px; }
             .top-nav { flex-direction: column; justify-content: center; text-align: center; }
             .header-left { flex-direction: column; gap: 10px; justify-content: center; }
-            
             .smart-reader-wrapper { width: 100%; align-items: stretch; margin-top: 10px; }
             .reader-content { position: static; width: 100%; margin-top: 10px; }
             .btn-reader { width: 100%; justify-content: center; padding: 14px; font-size: 16px; }
-            
             .layout { grid-template-columns: 1fr; gap: 20px; }
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .summary-card h2 { font-size: 16px; }
-            
             .form-row { flex-direction: column; gap: 12px; }
             input, select, textarea { font-size: 15px; } 
-            
             .list li { padding: 12px; }
             .item-title { font-size: 13px; }
             .item-actions span { font-size: 14px !important; }
@@ -280,17 +229,16 @@
                     <h2 class="section-title" style="margin:0;">🎯 Caixinha / Meta</h2>
                 </div>
                 <div class="goal-inputs">
-                    <input type="text" id="goal-name" placeholder="Nome da Meta" value="Reserva: Upgrade Positivo SIM+" onchange="saveGoal()">
-                    <input type="number" id="goal-target" placeholder="Meta R$" value="3500" onchange="saveGoal()">
+                    <input type="text" id="goal-name" placeholder="Nome da Meta" onchange="saveGoal()">
+                    <input type="number" id="goal-target" placeholder="Meta R$" onchange="saveGoal()">
                 </div>
                 <div class="progress-container">
                     <div class="progress-bar" id="goal-bar"></div>
                 </div>
                 <div class="goal-actions">
-                    <span id="goal-status">Guardado: R$ 0,00 / R$ 3500,00</span>
+                    <span id="goal-status">Guardado: R$ 0,00 / R$ 0,00</span>
                     <button class="btn-add-goal" onclick="addToGoal()">+ Depositar</button>
                 </div>
-                
                 <ul class="goal-history-list" id="goal-history"></ul>
             </div>
 
@@ -312,6 +260,7 @@
     </div>
 
     <script>
+        // DOM Elements
         const balance = document.getElementById('balance');
         const money_plus = document.getElementById('money-plus');
         const money_minus = document.getElementById('money-minus');
@@ -326,14 +275,18 @@
         const monthFilter = document.getElementById('month-filter');
         const goalHistoryList = document.getElementById('goal-history');
 
-        document.getElementById('date').valueAsDate = new Date();
-        monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
+        // Setup Inicial Seguro
+        try {
+            document.getElementById('date').valueAsDate = new Date();
+            monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
+        } catch(e) {}
 
         function updateButtonColor() {
+            if(!submitBtn || !typeInput) return;
             if (typeInput.value === 'plus') { submitBtn.style.backgroundColor = 'var(--green)'; submitBtn.style.color = '#000'; } 
             else { submitBtn.style.backgroundColor = 'var(--red)'; submitBtn.style.color = '#fff'; }
         }
-        typeInput.addEventListener('change', updateButtonColor);
+        if(typeInput) typeInput.addEventListener('change', updateButtonColor);
         updateButtonColor();
 
         function toggleReader() { document.getElementById('reader-box').classList.toggle('show'); }
@@ -343,10 +296,47 @@
             else display.innerText = "";
         }
 
-        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        // ==========================================
+        // SISTEMA DE AUTO-REPARO (ANTI-CRASH)
+        // ==========================================
+        let transactions = [];
+        try {
+            const savedData = localStorage.getItem('transactions');
+            if (savedData) {
+                transactions = JSON.parse(savedData);
+                if (!Array.isArray(transactions)) transactions = [];
+                // Se algum dado antigo estiver quebrado, o sistema conserta aqui:
+                transactions = transactions.map(t => {
+                    return {
+                        id: t.id || Math.floor(Math.random() * 100000000),
+                        text: t.text || 'Gasto sem nome',
+                        amount: parseFloat(t.amount) || 0,
+                        date: t.date || '2026-01-01',
+                        category: t.category || '💸 Outros',
+                        method: t.method || 'Pix/Dinheiro',
+                        debt: t.debt || 'Nenhum'
+                    };
+                });
+            }
+        } catch (error) {
+            console.error("Dados corrompidos deletados.", error);
+            transactions = [];
+        }
         
-        let goalData = JSON.parse(localStorage.getItem('myGoal')) || { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
-        if(!goalData.history) goalData.history = []; 
+        // Recuperação Segura da Meta
+        let goalData = { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
+        try {
+            const savedGoal = localStorage.getItem('myGoal');
+            if (savedGoal) {
+                const parsed = JSON.parse(savedGoal);
+                goalData.name = parsed.name || 'Reserva: Upgrade Positivo SIM+';
+                goalData.target = parseFloat(parsed.target) || 3500;
+                goalData.current = parseFloat(parsed.current) || 0;
+                goalData.history = Array.isArray(parsed.history) ? parsed.history : [];
+            }
+        } catch (error) {
+            console.error("Meta corrompida deletada.", error);
+        }
         
         document.getElementById('goal-name').value = goalData.name;
         document.getElementById('goal-target').value = goalData.target;
@@ -389,6 +379,7 @@
 
         function updateGoalUI() {
             let pct = (goalData.current / goalData.target) * 100;
+            if(isNaN(pct)) pct = 0;
             if(pct > 100) pct = 100;
             document.getElementById('goal-bar').style.width = pct + '%';
             document.getElementById('goal-status').innerText = `Guardado: R$ ${goalData.current.toFixed(2).replace('.',',')} / R$ ${goalData.target.toFixed(2).replace('.',',')}`;
@@ -398,7 +389,7 @@
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>📅 ${dep.date}</span>
-                    <span class="goal-val">+ R$ ${dep.amount.toFixed(2).replace('.',',')}</span>
+                    <span class="goal-val">+ R$ ${parseFloat(dep.amount).toFixed(2).replace('.',',')}</span>
                     <button class="delete-btn" onclick="removeGoalDeposit(${dep.id})" style="width: 22px; height: 22px; font-size: 10px; margin-left: auto; margin-right: 0;">X</button>
                 `;
                 goalHistoryList.appendChild(li);
@@ -429,7 +420,7 @@
                     }
                     updateLocalStorage(); saveGoal(); init();
                     alert("Backup restaurado com sucesso!");
-                } catch(err) { alert("Erro ao ler o arquivo de backup."); }
+                } catch(err) { alert("Erro ao ler o arquivo de backup. Ele pode estar corrompido."); }
             };
             reader.readAsText(file);
         }
@@ -528,9 +519,7 @@
             animateCoinAndSave(newTransactions);
             
             textInput.value = ''; amountInput.value = ''; 
-            document.getElementById('installments').value = '1'; 
-            // Categoria sempre volta pro padrão "Outros" em vez de bugar
-            categoryInput.value = '💸 Outros';
+            document.getElementById('installments').value = '1'; categoryInput.value = '💸 Outros';
         }
 
         function addTransactionDOM(transaction) {
@@ -539,8 +528,14 @@
             item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
             
             let debtBadge = transaction.debt !== 'Nenhum' ? `<span class="badge" style="color:var(--orange);border-color:var(--orange)">Dívida: ${transaction.debt}</span>` : '';
-            const dateBR = transaction.date.split('-').reverse().join('/');
-            let catIcon = transaction.category ? transaction.category.charAt(0) : '💸';
+            
+            // Proteção extra caso a data venha quebrada
+            let dateBR = "Sem data";
+            if(transaction.date && transaction.date.includes('-')) {
+                dateBR = transaction.date.split('-').reverse().join('/');
+            }
+            
+            let catIcon = (transaction.category && typeof transaction.category === 'string') ? transaction.category.charAt(0) : '💸';
 
             item.innerHTML = `
                 <div class="item-info">
@@ -556,12 +551,12 @@
         }
 
         function updateValues(filtered) {
-            const amounts = filtered.map(t => t.amount);
-            const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
-            const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
-            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+            const amounts = filtered.map(t => parseFloat(t.amount) || 0);
+            const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
+            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             
-            const totalDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => t.amount).reduce((acc, item) => (acc += item), 0) * -1;
+            const totalDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
 
             balance.innerText = `R$ ${total.replace('.', ',')}`;
             money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
@@ -573,17 +568,24 @@
         function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
 
         function init() {
-            list.innerHTML = '';
-            const selMonth = monthFilter.value;
-            const filtered = selMonth === 'all' ? transactions : transactions.filter(t => t.date.split('-')[1] === selMonth);
-            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-            filtered.forEach(addTransactionDOM);
-            updateValues(filtered);
-            updateGoalUI();
+            try {
+                list.innerHTML = '';
+                const selMonth = monthFilter.value;
+                const filtered = selMonth === 'all' ? transactions : transactions.filter(t => {
+                    if(!t || !t.date || !t.date.includes('-')) return false;
+                    return t.date.split('-')[1] === selMonth;
+                });
+                filtered.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+                filtered.forEach(addTransactionDOM);
+                updateValues(filtered);
+                updateGoalUI();
+            } catch(e) {
+                console.error("Erro ao iniciar a tela. Dados foram resetados para segurança.", e);
+            }
         }
 
-        monthFilter.addEventListener('change', init);
-        form.addEventListener('submit', addTransaction);
+        if(monthFilter) monthFilter.addEventListener('change', init);
+        if(form) form.addEventListener('submit', addTransaction);
 
         init();
     </script>
