@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças Pro</title>
+    <title>Finanças Pro - Com Inteligência</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +14,7 @@
             --green: #00e676;
             --red: #ff5252;
             --purple: #bb86fc;
+            --blue: #03dac6;
             --border-radius: 12px;
         }
         
@@ -26,9 +27,39 @@
             flex-direction: column; 
             align-items: center; 
             padding: 30px 15px; 
+            position: relative;
+            overflow-x: hidden;
         }
         
-        .container { width: 100%; max-width: 450px; }
+        /* Leitor Inteligente - Canto Superior Direito */
+        .smart-reader {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--blue);
+            width: 280px;
+            box-shadow: 0 4px 15px rgba(0,230,118,0.1);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+        .smart-reader h4 { font-size: 13px; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; }
+        .smart-reader textarea {
+            width: 100%; height: 70px; background: var(--bg-color); color: var(--text-color);
+            border: 1px solid #333; border-radius: 8px; padding: 8px; font-size: 12px; resize: none; margin-bottom: 8px;
+        }
+        .smart-reader button {
+            width: 100%; background: var(--blue); color: #121212; padding: 8px; font-size: 13px; margin: 0;
+        }
+
+        /* Container Principal */
+        .container { width: 100%; max-width: 450px; margin-top: 20px; }
+        @media (max-width: 800px) {
+            .smart-reader { position: static; width: 100%; max-width: 450px; margin-bottom: 20px; }
+            .container { margin-top: 0; }
+        }
         
         h1 { text-align: center; margin-bottom: 25px; font-weight: 600; letter-spacing: 1px; }
         
@@ -59,23 +90,23 @@
         .money-plus { color: var(--green); font-size: 18px; font-weight: 600; margin-top: 5px; }
         .money-minus { color: var(--red); font-size: 18px; font-weight: 600; margin-top: 5px; }
 
-        /* Lista de Transações */
+        /* Lista */
         h3 { margin-bottom: 15px; font-size: 18px; color: var(--purple); border-bottom: 1px solid #333; padding-bottom: 10px; }
         .list { list-style-type: none; margin-bottom: 30px; }
         .list li { 
             background: var(--card-bg); padding: 15px; border-radius: var(--border-radius); 
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 12px; position: relative; transition: transform 0.2s;
-            border-left: 5px solid #333;
+            border-left: 5px solid #333; overflow: hidden;
         }
         .list li:hover { transform: translateX(5px); }
         .list li.plus { border-left-color: var(--green); }
         .list li.minus { border-left-color: var(--red); }
         
         .transaction-info { display: flex; flex-direction: column; }
-        .transaction-title { font-weight: 600; font-size: 15px; }
-        .transaction-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-        .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 5px; color: #ddd; }
+        .transaction-title { font-weight: 600; font-size: 14px; }
+        .transaction-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 5px; flex-wrap: wrap; }
+        .badge { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #ddd; }
         .badge-debt { background: rgba(255, 82, 82, 0.2); color: var(--red); border: 1px solid var(--red); }
         
         .delete-btn { 
@@ -86,25 +117,47 @@
         .list li:hover .delete-btn { opacity: 1; right: 10px; }
 
         /* Formulário Moderno */
-        form { display: flex; flex-direction: column; gap: 12px; background: var(--card-bg); padding: 20px; border-radius: var(--border-radius); }
+        form { display: flex; flex-direction: column; gap: 12px; background: var(--card-bg); padding: 20px; border-radius: var(--border-radius); position: relative; }
         input, select, button { 
             padding: 12px; border: 1px solid #333; border-radius: 8px; 
-            font-size: 14px; background-color: var(--bg-color); color: var(--text-color); outline: none;
+            font-size: 14px; background-color: var(--bg-color); color: var(--text-color); outline: none; transition: border 0.3s;
         }
-        input:focus, select:focus { border-color: var(--purple); }
+        input:focus, select:focus, textarea:focus { border-color: var(--purple); }
         
         .form-row { display: flex; gap: 10px; }
         .form-row > * { flex: 1; }
 
-        button { 
+        .btn-submit { 
             background-color: var(--purple); color: #121212; border: none; 
             cursor: pointer; font-weight: 600; font-size: 16px; margin-top: 10px; transition: 0.3s;
         }
-        button:hover { background-color: #9d68dc; transform: translateY(-2px); }
+        .btn-submit:hover { background-color: #9d68dc; transform: translateY(-2px); }
+
+        /* Classe da Animação de Voo */
+        .flying-item {
+            position: fixed;
+            background: var(--green);
+            color: #121212;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            /* Animação suave usando cubic-bezier */
+            transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+        }
 
     </style>
 </head>
 <body>
+
+    <div class="smart-reader">
+        <h4>🤖 Leitor Inteligente</h4>
+        <textarea id="smart-text" placeholder="Cole aqui a notificação do banco..."></textarea>
+        <button type="button" onclick="analyzeNotification()">Preencher Sozinho</button>
+    </div>
 
     <div class="container">
         <h1>Finanças Pro</h1>
@@ -161,20 +214,23 @@
                     <option value="minus">Saída (-)</option>
                     <option value="plus">Entrada (+)</option>
                 </select>
+                <input type="number" id="installments" placeholder="Qtd. Parcelas" min="1" value="1" title="Número de parcelas" required />
+            </div>
+
+            <div class="form-row">
                 <select id="payment-method">
                     <option value="Pix/Dinheiro">Pix / Dinheiro</option>
                     <option value="Débito">Cartão de Débito</option>
                     <option value="Crédito">Cartão de Crédito</option>
                 </select>
+                <select id="debt-to">
+                    <option value="Nenhum">Dívida?</option>
+                    <option value="Michele">Michele</option>
+                    <option value="Andressa">Andressa</option>
+                </select>
             </div>
 
-            <select id="debt-to">
-                <option value="Nenhum">Isso é uma dívida com alguém?</option>
-                <option value="Michele">Devo para: Michele</option>
-                <option value="Andressa">Devo para: Andressa</option>
-            </select>
-
-            <button type="submit">Adicionar Transação</button>
+            <button type="submit" class="btn-submit" id="submit-btn">Adicionar Transação</button>
         </form>
     </div>
 
@@ -188,51 +244,154 @@
         const amount = document.getElementById('amount');
         const type = document.getElementById('type');
         const dateInput = document.getElementById('date');
+        const installmentsInput = document.getElementById('installments');
         const paymentMethod = document.getElementById('payment-method');
         const debtTo = document.getElementById('debt-to');
         const monthFilter = document.getElementById('month-filter');
+        const submitBtn = document.getElementById('submit-btn');
 
-        // Preenche a data de hoje automaticamente no formulário
+        // Puxa a data atual
         dateInput.valueAsDate = new Date();
+
+        // Atualiza filtro de mês para o mês atual
+        const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+        monthFilter.value = currentMonth;
 
         const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
         let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
 
-        function addTransaction(e) {
-            e.preventDefault();
-            let transactionAmount = parseFloat(amount.value);
-            
-            if(type.value === 'minus') {
-                transactionAmount = -Math.abs(transactionAmount);
-            } else {
-                transactionAmount = Math.abs(transactionAmount);
+        // Lógica do Leitor Inteligente
+        function analyzeNotification() {
+            const smartText = document.getElementById('smart-text').value.toLowerCase();
+            if(!smartText) return;
+
+            // Busca valor (Ex: R$ 150,00 ou apenas 150,00)
+            const valueMatch = smartText.match(/r\$\s*(\d+[.,]\d+)/) || smartText.match(/(\d+[.,]\d+)/);
+            if(valueMatch) {
+                amount.value = parseFloat(valueMatch[1].replace(',', '.'));
             }
 
-            const transaction = {
-                id: Math.floor(Math.random() * 100000000),
-                text: text.value,
-                amount: transactionAmount,
-                date: dateInput.value,
-                method: paymentMethod.value,
-                debt: debtTo.value
-            };
+            // Busca método
+            if(smartText.includes('crédito') || smartText.includes('credito')) {
+                paymentMethod.value = 'Crédito';
+                type.value = 'minus';
+            } else if(smartText.includes('débito') || smartText.includes('debito')) {
+                paymentMethod.value = 'Débito';
+                type.value = 'minus';
+            } else if(smartText.includes('pix')) {
+                paymentMethod.value = 'Pix/Dinheiro';
+            } else if(smartText.includes('recebid') || smartText.includes('transferência recebida')) {
+                type.value = 'plus';
+            }
 
-            transactions.push(transaction);
+            // Busca descrição simples (Tenta pegar palavras depois de "em" ou "para")
+            const nameMatch = smartText.match(/(?:em|para)\s+([a-záéíóúãõç\s]+)/i);
+            if(nameMatch) {
+                // Pega os primeiros 20 caracteres para não ficar gigante
+                text.value = nameMatch[1].trim().substring(0, 20);
+            } else {
+                text.value = "Compra Lida Automaticamente";
+            }
+            
+            // Efeito visual no botão para mostrar que funcionou
+            const btnLeitor = document.querySelector('.smart-reader button');
+            const textoOriginal = btnLeitor.innerText;
+            btnLeitor.innerText = "✓ Preenchido!";
+            btnLeitor.style.background = "var(--green)";
+            setTimeout(() => {
+                btnLeitor.innerText = textoOriginal;
+                btnLeitor.style.background = "var(--blue)";
+                document.getElementById('smart-text').value = '';
+            }, 2000);
+        }
+
+        // Animação de Voo para o Canto Inferior Direito
+        function playAnimation() {
+            const rect = submitBtn.getBoundingClientRect();
+            const flyingObj = document.createElement('div');
+            flyingObj.classList.add('flying-item');
+            flyingObj.innerText = '💸 Salvo!';
+            
+            // Posição inicial (em cima do botão)
+            flyingObj.style.left = rect.left + 'px';
+            flyingObj.style.top = rect.top + 'px';
+            document.body.appendChild(flyingObj);
+
+            // Força a renderização
+            void flyingObj.offsetWidth;
+
+            // Destino (Canto inferior direito da tela)
+            flyingObj.style.left = (window.innerWidth - 100) + 'px';
+            flyingObj.style.top = (window.innerHeight - 50) + 'px';
+            flyingObj.style.opacity = '0';
+            flyingObj.style.transform = 'scale(0.3)';
+
+            // Remove o elemento após a animação
+            setTimeout(() => { flyingObj.remove(); }, 900);
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            
+            let totalAmount = parseFloat(amount.value);
+            let numInstallments = parseInt(installmentsInput.value) || 1;
+            
+            if(type.value === 'minus') {
+                totalAmount = -Math.abs(totalAmount);
+            } else {
+                totalAmount = Math.abs(totalAmount);
+            }
+
+            // Lógica de Parcelas
+            let installmentAmount = totalAmount / numInstallments;
+            
+            // Pegar data base separando ano, mes, dia para evitar erro de fuso horário
+            let dateParts = dateInput.value.split('-');
+            let year = parseInt(dateParts[0]);
+            let month = parseInt(dateParts[1]) - 1; // Mês no JS começa em 0
+            let day = parseInt(dateParts[2]);
+
+            // Dispara a animação
+            playAnimation();
+
+            // Loop para criar as transações referentes às parcelas
+            for(let i = 0; i < numInstallments; i++) {
+                let tempDate = new Date(year, month + i, day);
+                let y = tempDate.getFullYear();
+                let m = String(tempDate.getMonth() + 1).padStart(2, '0');
+                let d = String(tempDate.getDate()).padStart(2, '0');
+                
+                let formattedDate = `${y}-${m}-${d}`;
+                let textSuffix = numInstallments > 1 ? ` (${i+1}/${numInstallments})` : '';
+
+                const transaction = {
+                    id: Math.floor(Math.random() * 100000000),
+                    text: text.value + textSuffix,
+                    amount: installmentAmount,
+                    date: formattedDate,
+                    method: paymentMethod.value,
+                    debt: debtTo.value
+                };
+
+                transactions.push(transaction);
+            }
+
             updateLocalStorage();
             init();
 
+            // Limpa formulário
             text.value = '';
             amount.value = '';
+            installmentsInput.value = '1';
             debtTo.value = 'Nenhum';
         }
 
-        // Filtra as transações pelo mês selecionado
         function getFilteredTransactions() {
             const selectedMonth = monthFilter.value;
             if (selectedMonth === 'all') return transactions;
             
             return transactions.filter(transaction => {
-                const transactionMonth = transaction.date.split('-')[1]; // Extrai o mês da data (YYYY-MM-DD)
+                const transactionMonth = transaction.date.split('-')[1];
                 return transactionMonth === selectedMonth;
             });
         }
@@ -242,23 +401,21 @@
             const item = document.createElement('li');
             item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
             
-            // Monta as "etiquetas" (badges) embaixo do nome
             let badges = `<span class="badge">${transaction.method}</span>`;
             if(transaction.debt !== 'Nenhum') {
-                badges += `<span class="badge badge-debt">Dívida: ${transaction.debt}</span>`;
+                badges += `<span class="badge badge-debt">Deve p/ ${transaction.debt}</span>`;
             }
             
-            // Formata a data para padrão BR
             const dateBR = transaction.date.split('-').reverse().join('/');
 
             item.innerHTML = `
                 <div class="transaction-info">
                     <span class="transaction-title">${transaction.text}</span>
                     <div class="transaction-meta">
-                        ${badges} <span>${dateBR}</span>
+                        ${badges} <span style="margin-left:5px;">📅 ${dateBR}</span>
                     </div>
                 </div>
-                <span>${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span>
+                <span style="font-weight:600; font-size:15px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span>
                 <button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button>
             `;
             list.appendChild(item);
@@ -288,11 +445,14 @@
         function init() {
             list.innerHTML = '';
             const filteredTransactions = getFilteredTransactions();
+            
+            // Ordenar por data (opcional, deixa a lista mais organizada)
+            filteredTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
             filteredTransactions.forEach(addTransactionDOM);
             updateValues(filteredTransactions);
         }
 
-        // Atualiza a tela quando o mês no topo é alterado
         monthFilter.addEventListener('change', init);
         form.addEventListener('submit', addTransaction);
 
