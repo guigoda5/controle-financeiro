@@ -6,6 +6,8 @@
     <title>Guigo da 5 - Finanças Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+
     <style>
         :root {
             --bg-dark: #0f111a;
@@ -23,108 +25,138 @@
         body { 
             background: radial-gradient(circle at 15% 50%, #1a1c2c, var(--bg-dark) 50%),
                         radial-gradient(circle at 85% 30%, #15232d, var(--bg-dark) 50%);
-            color: var(--text-color); min-height: 100vh; padding: 20px; overflow-x: hidden;
+            color: var(--text-color); min-height: 100vh; padding: 20px 30px; overflow-x: hidden;
         }
 
-        /* REMOVENDO SETAS DOS INPUTS */
+        /* --- SELETORES MODERNOS (SEM SETINHAS) --- */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
-        input, select { 
-            width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.4); 
-            border: 1px solid var(--glass-border); border-radius: 12px; 
-            color: #fff; font-size: 14px; outline: none; transition: all 0.3s ease; 
+        input, select, textarea { 
+            width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
+            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
         }
-        
-        input:focus { border-color: var(--blue); background: rgba(0,0,0,0.6); box-shadow: 0 0 10px rgba(3, 218, 198, 0.2); }
+        input:focus, select:focus { border-color: var(--blue); background: rgba(0,0,0,0.5); box-shadow: 0 0 10px rgba(3, 218, 198, 0.2); }
 
-        .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        /* Cabeçalho */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .main-title { font-size: 32px; font-weight: 600; text-transform: uppercase; background: linear-gradient(45deg, var(--blue), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        /* Print Inteligente */
+        .smart-reader-wrapper { position: relative; display: flex; flex-direction: column; align-items: flex-end; }
+        .btn-reader { background: linear-gradient(45deg, var(--blue), #02a89b); color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        .reader-content { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; max-height: 0; overflow: hidden; transition: 0.4s; opacity: 0; z-index: 101; }
+        .reader-content.show { max-height: 500px; opacity: 1; }
 
-        .divider-title { text-align: center; font-size: 20px; font-weight: 600; letter-spacing: 2px; margin: 30px 0 15px; color: #fff; text-transform: uppercase; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; }
+        /* Layout */
+        .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .glass-panel { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-        .summary-card { padding: 15px; text-align: center; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); }
-        .summary-card h4 { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        /* Títulos de Seção */
+        .divider-title { text-align: center; font-size: 22px; font-weight: 600; letter-spacing: 3px; margin: 35px 0 15px; text-transform: uppercase; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+
+        /* Grid de Resumo */
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .summary-card { padding: 15px; text-align: center; border-radius: 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); }
         .val-plus { color: var(--green); } .val-minus { color: var(--red); } .val-debt { color: var(--orange); }
 
-        .btn-main { padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; }
-        
-        .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); width: 0%; transition: width 0.5s; }
+        /* Metas */
+        .progress-container { width: 100%; background: rgba(0,0,0,0.5); border-radius: 10px; height: 14px; margin: 15px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); width: 0%; transition: 0.8s; }
 
-        .list, .debt-list { list-style: none; }
-        .list li, .debt-item { background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
+        /* Listas */
+        .list li, .debt-item { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .debt-item.pendente { border-left: 4px solid var(--orange); }
-        .debt-item.pago { border-left: 4px solid var(--green); opacity: 0.5; }
+        .debt-item.pago { border-left: 4px solid var(--green); opacity: 0.6; }
 
-        .delete-btn { background: none; border: 1px solid var(--red); color: var(--red); border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 10px; }
-        
-        .debt-inputs { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; margin-bottom: 15px; }
+        .delete-btn { background: rgba(255, 82, 82, 0.2); border: 1px solid var(--red); color: var(--red); border-radius: 50%; width: 28px; height: 28px; cursor: pointer; }
 
-        @media (max-width: 850px) {
-            .layout { grid-template-columns: 1fr; }
-            .summary-grid { grid-template-columns: 1fr 1fr; }
-            .debt-inputs { grid-template-columns: 1fr; }
-        }
+        /* Moedinha */
+        .coin-wrapper { position: fixed; z-index: 9999; pointer-events: none; }
+        .coin-anim { width: 20px; height: 20px; background: #ffd700; border-radius: 50%; border: 2px solid #fff; animation: spin 0.4s infinite; }
+        @keyframes spin { 100% { transform: rotateY(360deg); } }
+
+        @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .summary-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
 
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h1 style="font-size: 24px; letter-spacing: 2px; color: var(--blue);">GUIGO DA 5</h1>
-        <button onclick="exportData()" style="background:none; border:1px solid var(--glass-border); color:white; padding:5px 12px; border-radius:8px; cursor:pointer; font-size:12px;">💾 Backup</button>
+    <header class="top-nav">
+        <h1 class="main-title">Guigo da 5</h1>
+        <div class="smart-reader-wrapper">
+            <button class="btn-reader" onclick="toggleReader()">📸 Print Inteligente</button>
+            <div class="reader-content glass-panel" id="reader-box">
+                <input type="file" id="image-upload" accept="image/*" onchange="processSmartInput()" style="margin-bottom:10px;"/>
+                <textarea id="smart-text" placeholder="Ou cole o texto aqui..."></textarea>
+                <button onclick="processSmartInput()" style="background:var(--green); color:black; border:none; padding:10px; border-radius:8px; width:100%; margin-top:10px; font-weight:bold; cursor:pointer;">Analisar</button>
+                <div id="ocr-status" style="font-size:12px; margin-top:5px; color:var(--blue);"></div>
+            </div>
+        </div>
     </header>
 
     <div class="layout">
         <div class="glass-panel">
-            <h2 style="font-size:16px; margin-bottom:15px; color: var(--blue);">Nova Transação</h2>
-            <form id="form" style="display:grid; gap:10px;">
-                <input type="text" id="text" placeholder="Ex: Mercado, Cinema..." required />
+            <h2 style="color:var(--blue); margin-bottom:15px;">Nova Transação</h2>
+            <form id="form" style="display:grid; gap:12px;">
+                <input type="text" id="text" placeholder="Descrição" required />
                 <input type="number" id="amount" placeholder="Valor R$" step="0.01" required />
                 <input type="date" id="date" required />
+                <select id="category">
+                    <option value="Outros">💸 Categoria: Outros</option>
+                    <option value="Casa">🏠 Casa</option>
+                    <option value="Carro">🚗 Carro (Argo)</option>
+                    <option value="Saidas">🍻 Saídas</option>
+                    <option value="Salario">💼 Salário</option>
+                </select>
                 <select id="type">
                     <option value="minus">Saída (-)</option>
                     <option value="plus">Entrada (+)</option>
                 </select>
-                <button type="submit" class="btn-main" style="background:var(--red); color:white;">Salvar</button>
+                <button type="submit" id="submit-btn" style="padding:15px; border:none; border-radius:10px; background:var(--red); color:white; font-weight:bold; cursor:pointer;">Salvar Gasto</button>
             </form>
         </div>
 
         <div class="panel-center">
             <div class="summary-grid">
-                <div class="summary-card"><h4>Saldo</h4><h2 id="balance" style="font-size:18px;">R$ 0,00</h2></div>
-                <div class="summary-card"><h4>Ganhos</h4><h2 id="money-plus" class="val-plus" style="font-size:18px;">R$ 0,00</h2></div>
-                <div class="summary-card"><h4>Gastos</h4><h2 id="money-minus" class="val-minus" style="font-size:18px;">R$ 0,00</h2></div>
-                <div class="summary-card"><h4>Dívidas</h4><h2 id="money-debt" class="val-debt" style="font-size:18px;">R$ 0,00</h2></div>
+                <div class="summary-card"><h4>Saldo</h4><h2 id="balance">R$ 0,00</h2></div>
+                <div class="summary-card"><h4>Ganhos</h4><h2 id="money-plus" class="val-plus">R$ 0,00</h2></div>
+                <div class="summary-card"><h4>Gastos</h4><h2 id="money-minus" class="val-minus">R$ 0,00</h2></div>
+                <div class="summary-card"><h4>Dívidas</h4><h2 id="money-debt" class="val-debt">R$ 0,00</h2></div>
             </div>
 
-            <div class="glass-panel" style="border-top: 3px solid var(--blue);">
-                <h2 style="font-size:14px; margin-bottom:10px;">🎯 Meta de Economia</h2>
-                <div style="display:flex; gap:8px;">
-                    <input type="text" id="goal-name" placeholder="Nome da Meta" onchange="saveGoal()">
-                    <input type="number" id="goal-target" placeholder="Valor Meta R$" onchange="saveGoal()">
+            <div class="glass-panel">
+                <h2 style="font-size:16px;">🎯 Meta</h2>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <input type="text" id="goal-name" placeholder="Nome" onchange="saveGoal()">
+                    <input type="number" id="goal-target" placeholder="R$ Alvo" onchange="saveGoal()">
                 </div>
                 <div class="progress-container"><div class="progress-bar" id="goal-bar"></div></div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span id="goal-status" style="font-size:11px; color:var(--text-muted);">R$ 0 / R$ 0</span>
-                    <button onclick="addToGoal()" style="background:var(--blue); border:none; padding:4px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:12px;">+ Guardar</button>
+                    <span id="goal-status" style="font-size:12px;">R$ 0 / R$ 0</span>
+                    <button onclick="addToGoal()" style="background:var(--blue); border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">+ Guardar</button>
                 </div>
             </div>
 
             <h3 class="divider-title">Extrato</h3>
-            <div class="glass-panel"><ul id="list" class="list"></ul></div>
+            <div class="glass-panel">
+                <select id="month-filter" style="margin-bottom:15px; background:rgba(0,0,0,0.5);">
+                    <option value="all">Todos os Meses</option>
+                    <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03" selected>Março</option>
+                    <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
+                    <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
+                    <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+                </select>
+                <ul id="list" class="list"></ul>
+            </div>
 
-            <h3 class="divider-title" style="color: var(--orange);">Gerenciar Dívidas</h3>
+            <h3 class="divider-title" style="color: var(--orange);">Dívidas</h3>
             <div class="glass-panel" style="border-top: 3px solid var(--orange);">
-                <div class="debt-inputs">
+                <div style="display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap:10px; margin-bottom:20px;">
                     <input type="text" id="debt-name" placeholder="Empresa/Pessoa">
-                    <input type="number" id="debt-amount" placeholder="Valor Total R$">
-                    <input type="number" id="debt-installments" placeholder="Vezes (ex: 12)" title="Quantas parcelas?">
-                    <button onclick="addDebt()" style="background:var(--green); border:none; padding:0 15px; border-radius:10px; font-weight:bold; cursor:pointer;">ADICIONAR</button>
+                    <input type="number" id="debt-amount" placeholder="Valor Total">
+                    <input type="number" id="debt-installments" placeholder="Parcelas">
+                    <button onclick="addDebt()" style="background:var(--green); border:none; padding:0 15px; border-radius:10px; cursor:pointer; font-weight:bold;">+</button>
                 </div>
                 <ul class="debt-list" id="debt-list-ui"></ul>
             </div>
@@ -139,98 +171,79 @@
         const list = document.getElementById('list');
         const debtUi = document.getElementById('debt-list-ui');
         const form = document.getElementById('form');
+        const monthFilter = document.getElementById('month-filter');
 
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let debts = JSON.parse(localStorage.getItem('myDebtsList')) || [];
         let goalData = JSON.parse(localStorage.getItem('myGoal')) || { name: '', target: 0, current: 0 };
 
-        function updateValues() {
-            const amounts = transactions.map(t => t.amount);
-            const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
-            const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
-            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
-            const totalDebt = debts.filter(d => !d.paid).reduce((acc, item) => acc + item.amount, 0).toFixed(2);
+        function toggleReader() { document.getElementById('reader-box').classList.toggle('show'); }
 
-            balance.innerText = `R$ ${total.replace('.',',')}`;
-            money_plus.innerText = `R$ ${income.replace('.',',')}`;
-            money_minus.innerText = `R$ ${expense.replace('.',',')}`;
-            money_debt.innerText = `R$ ${totalDebt.replace('.',',')}`;
-            
-            updateGoalUI();
+        async function processSmartInput() {
+            const file = document.getElementById('image-upload').files[0];
+            const text = document.getElementById('smart-text').value;
+            const status = document.getElementById('ocr-status');
+            if(file) {
+                status.innerText = "Lendo imagem...";
+                const result = await Tesseract.recognize(file, 'por');
+                analyzeText(result.data.text);
+                status.innerText = "Lido!";
+            } else if(text) { analyzeText(text); }
+        }
+
+        function analyzeText(t) {
+            const lowT = t.toLowerCase();
+            const val = t.match(/r\$\s*(\d+[.,]\d+)/) || t.match(/(\d+[.,]\d+)/);
+            if(val) document.getElementById('amount').value = val[1].replace(',','.');
+            document.getElementById('text').value = "Auto Leitura";
+        }
+
+        function animateCoin(callback) {
+            const coin = document.createElement('div');
+            coin.className = 'coin-wrapper';
+            coin.innerHTML = '<div class="coin-anim"></div>';
+            coin.style.left = '50%'; coin.style.top = '50%';
+            document.body.appendChild(coin);
+            setTimeout(() => { coin.remove(); callback(); }, 500);
         }
 
         function addTransaction(e) {
             e.preventDefault();
-            const transaction = {
-                id: Math.floor(Math.random() * 1000000),
-                text: document.getElementById('text').value,
-                amount: document.getElementById('type').value === 'minus' ? -Math.abs(document.getElementById('amount').value) : Math.abs(document.getElementById('amount').value),
-                date: document.getElementById('date').value
-            };
-            transactions.push(transaction);
-            init();
-            form.reset();
+            animateCoin(() => {
+                const transaction = {
+                    id: Math.floor(Math.random() * 1000000),
+                    text: document.getElementById('text').value,
+                    amount: document.getElementById('type').value === 'minus' ? -Math.abs(document.getElementById('amount').value) : Math.abs(document.getElementById('amount').value),
+                    date: document.getElementById('date').value,
+                    category: document.getElementById('category').value
+                };
+                transactions.push(transaction);
+                init();
+                form.reset();
+            });
         }
 
-        function removeTransaction(id) {
-            transactions = transactions.filter(t => t.id !== id);
-            init();
-        }
-
-        // FUNÇÃO DE ADICIONAR DÍVIDA COM LÓGICA DE PARCELAS
         function addDebt() {
             const name = document.getElementById('debt-name').value;
-            const totalVal = parseFloat(document.getElementById('debt-amount').value);
-            const installments = parseInt(document.getElementById('debt-installments').value) || 1;
-
-            if(name && !isNaN(totalVal)) {
-                const valPerInstallment = totalVal / installments;
-
-                for(let i = 1; i <= installments; i++) {
-                    const debt = {
-                        id: Math.floor(Math.random() * 10000000),
-                        name: installments > 1 ? `${name} (${i}/${installments})` : name,
-                        amount: valPerInstallment,
-                        paid: false
-                    };
-                    debts.push(debt);
+            const val = parseFloat(document.getElementById('debt-amount').value);
+            const inst = parseInt(document.getElementById('debt-installments').value) || 1;
+            if(name && val) {
+                for(let i = 1; i <= inst; i++) {
+                    debts.push({ id: Math.random(), name: inst > 1 ? `${name} (${i}/${inst})` : name, amount: val/inst, paid: false });
                 }
-                
                 saveDebts();
-                document.getElementById('debt-name').value = '';
-                document.getElementById('debt-amount').value = '';
-                document.getElementById('debt-installments').value = '';
+                document.getElementById('debt-name').value = ''; document.getElementById('debt-amount').value = '';
             }
         }
 
-        function toggleDebt(id) {
-            const debt = debts.find(d => d.id === id);
-            if(debt) debt.paid = !debt.paid;
-            saveDebts();
-        }
-
-        function removeDebt(id) {
-            debts = debts.filter(d => d.id !== id);
-            saveDebts();
-        }
-
-        function saveDebts() {
-            localStorage.setItem('myDebtsList', JSON.stringify(debts));
-            init();
-        }
-
-        function saveGoal() {
+        function saveDebts() { localStorage.setItem('myDebtsList', JSON.stringify(debts)); init(); }
+        function saveGoal() { 
             goalData.name = document.getElementById('goal-name').value;
             goalData.target = parseFloat(document.getElementById('goal-target').value) || 0;
-            localStorage.setItem('myGoal', JSON.stringify(goalData));
+            localStorage.setItem('myGoal', JSON.stringify(goalData)); 
             updateGoalUI();
         }
-
-        function addToGoal() {
-            const val = prompt("Quanto deseja guardar?");
-            if(val) { goalData.current += parseFloat(val.replace(',','.')); saveGoal(); }
-        }
-
+        function addToGoal() { const v = prompt("Quanto?"); if(v) { goalData.current += parseFloat(v); saveGoal(); } }
         function updateGoalUI() {
             const pct = (goalData.current / goalData.target) * 100 || 0;
             document.getElementById('goal-bar').style.width = Math.min(pct, 100) + '%';
@@ -239,9 +252,12 @@
 
         function init() {
             list.innerHTML = '';
-            transactions.forEach(t => {
+            const selMonth = monthFilter.value;
+            const filtered = selMonth === 'all' ? transactions : transactions.filter(t => t.date.split('-')[1] === selMonth);
+            
+            filtered.forEach(t => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${t.text}</span> <strong>R$ ${t.amount.toFixed(2)}</strong> <button class="delete-btn" onclick="removeTransaction(${t.id})">x</button>`;
+                li.innerHTML = `<span>${t.text} (${t.category})</span> <strong>R$ ${t.amount.toFixed(2)}</strong> <button class="delete-btn" onclick="removeTransaction(${t.id})">x</button>`;
                 list.appendChild(li);
             });
 
@@ -249,29 +265,29 @@
             debts.forEach(d => {
                 const li = document.createElement('li');
                 li.className = `debt-item ${d.paid ? 'pago' : 'pendente'}`;
-                li.innerHTML = `<span>${d.name} <br><small style="color:var(--text-muted)">R$ ${d.amount.toFixed(2)}</small></span> <div>
-                    <button onclick="toggleDebt(${d.id})" style="border:none; padding:8px; cursor:pointer; border-radius:8px; background:rgba(255,255,255,0.1); color:white;">${d.paid ? '✅ Pago' : '⏳ Pendente'}</button>
-                    <button onclick="removeDebt(${d.id})" style="border:none; background:none; color:var(--red); cursor:pointer; margin-left:12px; font-weight:bold;">X</button>
-                </div>`;
+                li.innerHTML = `<span>${d.name} <br><small>R$ ${d.amount.toFixed(2)}</small></span> 
+                <button onclick="toggleDebt(${d.id})" style="border:none; padding:5px; cursor:pointer;">${d.paid ? '✅' : '⏳'}</button>`;
                 debtUi.appendChild(li);
             });
 
+            const amounts = filtered.map(t => t.amount);
+            balance.innerText = `R$ ${amounts.reduce((a, b) => a + b, 0).toFixed(2)}`;
+            money_plus.innerText = `R$ ${amounts.filter(a => a > 0).reduce((a, b) => a + b, 0).toFixed(2)}`;
+            money_minus.innerText = `R$ ${Math.abs(amounts.filter(a => a < 0).reduce((a, b) => a + b, 0)).toFixed(2)}`;
+            money_debt.innerText = `R$ ${debts.filter(d => !d.paid).reduce((a, b) => a + b.amount, 0).toFixed(2)}`;
+            
             localStorage.setItem('transactions', JSON.stringify(transactions));
-            updateValues();
+            updateGoalUI();
         }
 
+        function removeTransaction(id) { transactions = transactions.filter(t => t.id !== id); init(); }
+        function toggleDebt(id) { const d = debts.find(x => x.id === id); d.paid = !d.paid; saveDebts(); }
+        
         form.addEventListener('submit', addTransaction);
+        monthFilter.addEventListener('change', init);
         document.getElementById('goal-name').value = goalData.name;
         document.getElementById('goal-target').value = goalData.target;
         init();
-
-        function exportData() {
-            const blob = new Blob([JSON.stringify({transactions, debts, goalData})], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'backup_financeiro.json';
-            a.click();
-        }
     </script>
 </body>
 </html>
