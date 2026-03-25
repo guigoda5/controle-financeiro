@@ -96,13 +96,17 @@
         .coin-wrapper { position: fixed; z-index: 9999; pointer-events: none; }
         .coin-anim { width: 20px; height: 20px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; border: 2px solid #fff9c4; animation: spin 0.4s linear infinite; }
 
+        /* === CORREÇÃO DO LAYOUT MOBILE AQUI === */
         @media (max-width: 900px) {
             body { padding: 15px 10px; }
             .top-nav { flex-direction: column; justify-content: center; text-align: center; }
             .header-left { flex-direction: column; gap: 10px; justify-content: center; }
-            .smart-reader-wrapper { width: 100%; align-items: stretch; margin-top: 10px; }
-            .reader-content { position: static; width: 100%; margin-top: 10px; }
+            
+            /* Mantendo como absolute para abrir POR CIMA e não empurrar a tela */
+            .smart-reader-wrapper { width: 100%; align-items: stretch; margin-top: 10px; position: relative; }
+            .reader-content { position: absolute; top: calc(100% + 5px); left: 0; right: 0; width: 100%; margin-top: 0; z-index: 999; }
             .btn-reader { width: 100%; justify-content: center; padding: 14px; font-size: 16px; }
+            
             .layout { grid-template-columns: 1fr; gap: 20px; }
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -260,7 +264,6 @@
     </div>
 
     <script>
-        // DOM Elements
         const balance = document.getElementById('balance');
         const money_plus = document.getElementById('money-plus');
         const money_minus = document.getElementById('money-minus');
@@ -275,7 +278,6 @@
         const monthFilter = document.getElementById('month-filter');
         const goalHistoryList = document.getElementById('goal-history');
 
-        // Setup Inicial Seguro
         try {
             document.getElementById('date').valueAsDate = new Date();
             monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
@@ -296,16 +298,12 @@
             else display.innerText = "";
         }
 
-        // ==========================================
-        // SISTEMA DE AUTO-REPARO (ANTI-CRASH)
-        // ==========================================
         let transactions = [];
         try {
             const savedData = localStorage.getItem('transactions');
             if (savedData) {
                 transactions = JSON.parse(savedData);
                 if (!Array.isArray(transactions)) transactions = [];
-                // Se algum dado antigo estiver quebrado, o sistema conserta aqui:
                 transactions = transactions.map(t => {
                     return {
                         id: t.id || Math.floor(Math.random() * 100000000),
@@ -323,7 +321,6 @@
             transactions = [];
         }
         
-        // Recuperação Segura da Meta
         let goalData = { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
         try {
             const savedGoal = localStorage.getItem('myGoal');
@@ -420,7 +417,7 @@
                     }
                     updateLocalStorage(); saveGoal(); init();
                     alert("Backup restaurado com sucesso!");
-                } catch(err) { alert("Erro ao ler o arquivo de backup. Ele pode estar corrompido."); }
+                } catch(err) { alert("Erro ao ler o arquivo de backup."); }
             };
             reader.readAsText(file);
         }
@@ -529,7 +526,6 @@
             
             let debtBadge = transaction.debt !== 'Nenhum' ? `<span class="badge" style="color:var(--orange);border-color:var(--orange)">Dívida: ${transaction.debt}</span>` : '';
             
-            // Proteção extra caso a data venha quebrada
             let dateBR = "Sem data";
             if(transaction.date && transaction.date.includes('-')) {
                 dateBR = transaction.date.split('-').reverse().join('/');
