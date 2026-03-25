@@ -50,7 +50,7 @@
         }
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
-        /* Leitor Inteligente (Novo Posicionamento) */
+        /* Leitor Inteligente */
         .smart-reader-wrapper { position: relative; display: flex; flex-direction: column; align-items: flex-end; }
         .btn-reader { background: linear-gradient(45deg, var(--blue), #02a89b); color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(3, 218, 198, 0.3); transition: 0.3s; }
         .btn-reader:active { transform: scale(0.95); }
@@ -66,7 +66,6 @@
 
         .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; }
 
-        /* Estilos Universais de Vidro */
         .glass-panel {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -94,14 +93,12 @@
         }
         .btn-submit:active { transform: scale(0.96); }
 
-        /* Resumo em 4 Cartões */
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .summary-card { padding: 15px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .summary-card h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .summary-card h2 { font-size: 18px; font-weight: 600; margin: 0; word-break: break-word; }
         .val-total { color: #fff; } .val-plus { color: var(--green); } .val-minus { color: var(--red); } .val-debt { color: var(--orange); }
 
-        /* Metas e Caixinhas (Neon) */
         .goals-panel { margin-bottom: 25px; padding: 20px; border-left: 4px solid var(--blue); }
         .goals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
         .goal-inputs { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -115,7 +112,6 @@
         .btn-add-goal { background: var(--blue); color: #000; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-add-goal:active { transform: scale(0.95); }
 
-        /* Histórico Exclusivo da Meta */
         .goal-history-list { list-style: none; margin-top: 15px; max-height: 120px; overflow-y: auto; }
         .goal-history-list::-webkit-scrollbar { width: 6px; }
         .goal-history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
@@ -126,7 +122,6 @@
         }
         .goal-val { color: var(--green); font-weight: 600; }
 
-        /* Lista Histórico Principal */
         .list { list-style: none; min-height: 150px; position: relative; }
         .list li {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
@@ -148,7 +143,6 @@
         .coin-wrapper { position: fixed; z-index: 9999; pointer-events: none; }
         .coin-anim { width: 20px; height: 20px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; border: 2px solid #fff9c4; animation: spin 0.4s linear infinite; }
 
-        /* === AJUSTES PARA CELULAR === */
         @media (max-width: 900px) {
             body { padding: 15px 10px; }
             .top-nav { flex-direction: column; justify-content: center; text-align: center; }
@@ -218,14 +212,13 @@
                 </div>
 
                 <select id="category" required>
-                    <option value="" disabled selected>Escolha uma Categoria...</option>
+                    <option value="💸 Outros" selected>💸 Categoria: Outros</option>
                     <option value="🏠 Despesas Fixas (Casa)">🏠 Despesas Fixas (Casa)</option>
                     <option value="🚗 Carro (Argo)">🚗 Carro (Argo)</option>
                     <option value="🍻 Saídas e Encontros">🍻 Saídas e Encontros</option>
                     <option value="🎮 Lazer (Jogos/Futebol)">🎮 Lazer (Jogos/Futebol)</option>
                     <option value="🛒 Supermercado">🛒 Supermercado</option>
                     <option value="💼 Salário / Renda">💼 Salário / Renda</option>
-                    <option value="💸 Outros">💸 Outros</option>
                 </select>
 
                 <div class="form-row">
@@ -425,3 +418,174 @@
             if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(imported.transactions) transactions = imported.transactions;
+                    if(imported.goalData) {
+                        goalData = imported.goalData;
+                        if(!goalData.history) goalData.history = [];
+                        document.getElementById('goal-name').value = goalData.name;
+                        document.getElementById('goal-target').value = goalData.target;
+                    }
+                    updateLocalStorage(); saveGoal(); init();
+                    alert("Backup restaurado com sucesso!");
+                } catch(err) { alert("Erro ao ler o arquivo de backup."); }
+            };
+            reader.readAsText(file);
+        }
+
+        async function processSmartInput() {
+            const fileInput = document.getElementById('image-upload');
+            const textArea = document.getElementById('smart-text');
+            const statusDiv = document.getElementById('ocr-status');
+            const btn = document.getElementById('btn-analyze');
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                statusDiv.innerText = "Lendo imagem... ⏳"; btn.disabled = true;
+                try {
+                    const result = await Tesseract.recognize(file, 'por');
+                    textArea.value = result.data.text;
+                    analyzeText(result.data.text);
+                    statusDiv.innerText = "Lido com sucesso!";
+                    fileInput.value = ""; updateFileName(fileInput);
+                } catch (error) { statusDiv.innerText = "Erro na leitura."; } 
+                finally { btn.disabled = false; setTimeout(() => statusDiv.innerText = "", 3000); }
+            } else if (textArea.value.trim() !== '') {
+                analyzeText(textArea.value); toggleReader(); 
+            } else { statusDiv.innerText = "Insira a imagem ou texto!"; setTimeout(() => statusDiv.innerText = "", 2000); }
+        }
+
+        function analyzeText(rawText) {
+            const smartText = rawText.toLowerCase();
+            const valueMatch = smartText.match(/r\$\s*(\d+[.,]\d+)/) || smartText.match(/(\d+[.,]\d+)/);
+            if(valueMatch) amountInput.value = parseFloat(valueMatch[1].replace(',', '.'));
+
+            if(smartText.includes('crédito') || smartText.includes('credito')) {
+                document.getElementById('payment-method').value = 'Crédito'; typeInput.value = 'minus';
+            } else if(smartText.includes('débito') || smartText.includes('debito')) {
+                document.getElementById('payment-method').value = 'Débito'; typeInput.value = 'minus';
+            } else if(smartText.includes('pix') || smartText.includes('enviad')) {
+                document.getElementById('payment-method').value = 'Pix/Dinheiro'; typeInput.value = 'minus';
+            } else if(smartText.includes('recebid')) { typeInput.value = 'plus'; }
+
+            const nameMatch = smartText.match(/(?:em|para)\s+([a-záéíóúãõç\s]+)/i);
+            textInput.value = nameMatch ? nameMatch[1].trim().substring(0, 15) : "Auto Leitura";
+            updateButtonColor();
+        }
+
+        function animateCoinAndSave(transactionDataArr) {
+            const wrapper = document.createElement('div'); wrapper.className = 'coin-wrapper';
+            const coin = document.createElement('div'); coin.className = 'coin-anim'; wrapper.appendChild(coin);
+            
+            const btnRect = submitBtn.getBoundingClientRect();
+            wrapper.style.left = (btnRect.left + btnRect.width/2 - 10) + 'px';
+            wrapper.style.top = (btnRect.top + btnRect.height/2 - 10) + 'px';
+            document.body.appendChild(wrapper);
+
+            const listRect = list.getBoundingClientRect();
+            const destX = listRect.left + 30; const destY = listRect.top > 0 ? listRect.top + 20 : window.innerHeight / 2;
+
+            setTimeout(() => {
+                wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s';
+                wrapper.style.transform = `translate(${destX - parseFloat(wrapper.style.left)}px, ${destY - parseFloat(wrapper.style.top)}px) scale(0.5)`;
+                wrapper.style.opacity = '0.2';
+            }, 10);
+
+            setTimeout(() => {
+                wrapper.remove();
+                transactions.push(...transactionDataArr);
+                updateLocalStorage(); init();
+            }, 510);
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            let totalAmount = parseFloat(amountInput.value);
+            let numInstallments = parseInt(document.getElementById('installments').value);
+            totalAmount = typeInput.value === 'minus' ? -Math.abs(totalAmount) : Math.abs(totalAmount);
+            let installmentAmount = totalAmount / numInstallments;
+            
+            let dateParts = document.getElementById('date').value.split('-');
+            let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]);
+
+            let newTransactions = [];
+            for(let i = 0; i < numInstallments; i++) {
+                let tempDate = new Date(year, month + i, day);
+                let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                let textSuffix = numInstallments > 1 ? ` (${i+1}/${numInstallments})` : '';
+
+                newTransactions.push({
+                    id: Math.floor(Math.random() * 100000000),
+                    text: textInput.value + textSuffix,
+                    amount: installmentAmount,
+                    date: formattedDate,
+                    category: categoryInput.value || '💸 Outros',
+                    method: document.getElementById('payment-method').value,
+                    debt: document.getElementById('debt-to').value
+                });
+            }
+            animateCoinAndSave(newTransactions);
+            
+            textInput.value = ''; amountInput.value = ''; 
+            document.getElementById('installments').value = '1'; 
+            // Categoria sempre volta pro padrão "Outros" em vez de bugar
+            categoryInput.value = '💸 Outros';
+        }
+
+        function addTransactionDOM(transaction) {
+            const sign = transaction.amount < 0 ? '-' : '+';
+            const item = document.createElement('li');
+            item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
+            
+            let debtBadge = transaction.debt !== 'Nenhum' ? `<span class="badge" style="color:var(--orange);border-color:var(--orange)">Dívida: ${transaction.debt}</span>` : '';
+            const dateBR = transaction.date.split('-').reverse().join('/');
+            let catIcon = transaction.category ? transaction.category.charAt(0) : '💸';
+
+            item.innerHTML = `
+                <div class="item-info">
+                    <span class="item-title">${catIcon} ${transaction.text}</span>
+                    <span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span>
+                </div>
+                <div class="item-actions">
+                    <span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span>
+                    <button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button>
+                </div>
+            `;
+            list.appendChild(item);
+        }
+
+        function updateValues(filtered) {
+            const amounts = filtered.map(t => t.amount);
+            const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+            
+            const totalDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => t.amount).reduce((acc, item) => (acc += item), 0) * -1;
+
+            balance.innerText = `R$ ${total.replace('.', ',')}`;
+            money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
+            money_minus.innerText = `- R$ ${expense.replace('.', ',')}`;
+            money_debt.innerText = `R$ ${totalDebt.toFixed(2).replace('.', ',')}`;
+        }
+
+        function removeTransaction(id) { transactions = transactions.filter(t => t.id !== id); updateLocalStorage(); init(); }
+        function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
+
+        function init() {
+            list.innerHTML = '';
+            const selMonth = monthFilter.value;
+            const filtered = selMonth === 'all' ? transactions : transactions.filter(t => t.date.split('-')[1] === selMonth);
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            filtered.forEach(addTransactionDOM);
+            updateValues(filtered);
+            updateGoalUI();
+        }
+
+        monthFilter.addEventListener('change', init);
+        form.addEventListener('submit', addTransaction);
+
+        init();
+    </script>
+</body>
+</html>
