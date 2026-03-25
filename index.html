@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanças Pro - Glass Edition</title>
+    <title>Finanças Pro - Glass Edition & AI Vision</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
     <style>
         :root {
             --bg-dark: #0f111a;
@@ -19,7 +22,6 @@
         
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         
-        /* Fundo com efeito para destacar o vidro */
         body { 
             background: radial-gradient(circle at 15% 50%, #1a1c2c, var(--bg-dark) 50%),
                         radial-gradient(circle at 85% 30%, #15232d, var(--bg-dark) 50%);
@@ -29,7 +31,6 @@
             overflow-x: hidden;
         }
 
-        /* Estrutura Principal: Esquerda e Centro */
         .layout {
             display: grid;
             grid-template-columns: 350px 1fr;
@@ -44,7 +45,6 @@
             .smart-reader-wrapper { position: static; margin-bottom: 20px; }
         }
 
-        /* Efeito Liquid Glass Geral */
         .glass-panel {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
             backdrop-filter: blur(12px);
@@ -56,13 +56,11 @@
             position: relative;
             overflow: hidden;
         }
-        /* Brilho interno do vidro */
         .glass-panel::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
-        /* === COLUNA ESQUERDA (FORMULÁRIO) === */
         h2.section-title { font-size: 20px; margin-bottom: 20px; font-weight: 600; }
         form { display: flex; flex-direction: column; gap: 15px; }
         
@@ -72,18 +70,21 @@
         }
         input:focus, select:focus { border-color: var(--blue); background: rgba(0,0,0,0.5); }
         
+        /* Estilo especial para o campo de arquivo (upload de imagem) */
+        input[type="file"] {
+            padding: 8px; font-size: 12px; cursor: pointer;
+        }
+        
         .form-row { display: flex; gap: 10px; }
 
-        /* Botão Dinâmico */
         .btn-submit { 
             padding: 15px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; 
             color: #fff; cursor: pointer; transition: background 0.4s ease, transform 0.2s;
-            background-color: var(--red); /* Cor inicial */
+            background-color: var(--red);
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         .btn-submit:active { transform: scale(0.96); }
 
-        /* === COLUNA CENTRAL (RESUMO E HISTÓRICO) === */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 30px; }
         .summary-card { padding: 20px; text-align: center; }
         .summary-card h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
@@ -92,13 +93,12 @@
         .val-plus { color: var(--green); }
         .val-minus { color: var(--red); }
 
-        /* Histórico em Liquid Glass */
         .list { list-style: none; min-height: 200px; position: relative; }
         .list li {
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50px; /* Arredondado estilo balão */
+            border-radius: 50px;
             padding: 15px 25px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.2);
@@ -106,7 +106,6 @@
             position: relative; overflow: hidden;
         }
         
-        /* Brilho lateral indicando entrada/saída */
         .list li.plus::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--green); }
         .list li.minus::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--red); }
 
@@ -122,8 +121,7 @@
         }
         .list li:hover .delete-btn { opacity: 1; }
 
-        /* === LEITOR INTELIGENTE (RETRÁTIL DIREITA) === */
-        .smart-reader-wrapper { position: absolute; top: 30px; right: 30px; z-index: 100; width: 300px; display: flex; flex-direction: column; align-items: flex-end; }
+        .smart-reader-wrapper { position: absolute; top: 30px; right: 30px; z-index: 100; width: 320px; display: flex; flex-direction: column; align-items: flex-end; }
         
         .btn-reader {
             background: linear-gradient(45deg, var(--blue), #02a89b); color: #000; border: none;
@@ -135,19 +133,21 @@
             width: 100%; max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0, 1, 0, 1), opacity 0.5s;
             opacity: 0; margin-top: 10px;
         }
-        .reader-content.show { max-height: 200px; opacity: 1; transition: max-height 0.5s ease-in-out, opacity 0.5s; }
+        /* Aumentei a altura máxima para caber o novo botão de upload */
+        .reader-content.show { max-height: 350px; opacity: 1; transition: max-height 0.5s ease-in-out, opacity 0.5s; }
         
-        .reader-content textarea { width: 100%; height: 80px; resize: none; margin-bottom: 10px; }
-        .btn-fill { width: 100%; background: var(--green); color: #000; border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .reader-content textarea { width: 100%; height: 60px; resize: none; margin-bottom: 10px; font-size: 12px; }
+        .btn-fill { width: 100%; background: var(--green); color: #000; border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* Texto de status do carregamento */
+        #ocr-status { font-size: 12px; color: var(--blue); text-align: center; margin-top: 10px; font-weight: 600; min-height: 18px; }
 
-        /* === ANIMAÇÃO DA MOEDA === */
+        .coin-wrapper { position: fixed; z-index: 9999; pointer-events: none; }
         .coin-anim {
-            position: fixed; width: 24px; height: 24px;
+            width: 24px; height: 24px;
             background: radial-gradient(circle, #ffd700, #b8860b);
             border-radius: 50%; border: 2px solid #fff9c4;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
-            z-index: 9999; pointer-events: none;
-            /* Efeito de giro */
             animation: spin 0.4s linear infinite;
         }
 
@@ -159,10 +159,16 @@
 <body>
 
     <div class="smart-reader-wrapper">
-        <button class="btn-reader" onclick="toggleReader()">🤖 Leitor Inteligente</button>
+        <button class="btn-reader" onclick="toggleReader()">📸 Print Inteligente</button>
         <div class="reader-content glass-panel" id="reader-box">
-            <textarea id="smart-text" placeholder="Cole o SMS ou aviso do banco aqui..."></textarea>
-            <button class="btn-fill" onclick="analyzeNotification()">Preencher Sozinho</button>
+            <p style="font-size: 11px; margin-bottom: 8px; color: var(--text-muted);">1. Anexe o print da notificação:</p>
+            <input type="file" id="image-upload" accept="image/*" />
+            
+            <p style="font-size: 11px; margin: 10px 0 8px 0; color: var(--text-muted);">2. Ou cole o texto se preferir:</p>
+            <textarea id="smart-text" placeholder="Cole o texto aqui..."></textarea>
+            
+            <button class="btn-fill" id="btn-analyze" onclick="processSmartInput()">Ler e Preencher</button>
+            <div id="ocr-status"></div>
         </div>
     </div>
 
@@ -212,7 +218,6 @@
         </div>
 
         <div class="panel-center">
-            
             <div class="summary-grid">
                 <div class="summary-card glass-panel">
                     <h4>Saldo Atual</h4>
@@ -248,8 +253,7 @@
                     </select>
                 </div>
                 
-                <ul id="list" class="list">
-                    </ul>
+                <ul id="list" class="list"></ul>
             </div>
         </div>
 
@@ -267,7 +271,6 @@
         const submitBtn = document.getElementById('submit-btn');
         const monthFilter = document.getElementById('month-filter');
 
-        // Configuração inicial das cores do botão
         function updateButtonColor() {
             if (typeInput.value === 'plus') {
                 submitBtn.style.backgroundColor = 'var(--green)';
@@ -278,63 +281,139 @@
             }
         }
         typeInput.addEventListener('change', updateButtonColor);
-        updateButtonColor(); // Roda ao abrir a tela
+        updateButtonColor();
 
-        // Toggle do Leitor Inteligente
         function toggleReader() {
             document.getElementById('reader-box').classList.toggle('show');
         }
 
-        // Seta mês e data atual
         document.getElementById('date').valueAsDate = new Date();
         monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
 
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
-        // Lógica da Animação da Moeda
+        // === NOVA LÓGICA DO LEITOR DE IMAGEM (OCR) ===
+        async function processSmartInput() {
+            const fileInput = document.getElementById('image-upload');
+            const textArea = document.getElementById('smart-text');
+            const statusDiv = document.getElementById('ocr-status');
+            const btn = document.getElementById('btn-analyze');
+
+            // Se o usuário selecionou uma imagem
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // Feedback visual pois a leitura demora alguns segundos
+                statusDiv.innerText = "Lendo a imagem... Aguarde ⏳";
+                statusDiv.style.color = "var(--green)";
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+
+                try {
+                    // Chama a IA para ler a imagem em Português (por)
+                    const result = await Tesseract.recognize(file, 'por');
+                    const textExtracted = result.data.text;
+                    
+                    // Coloca o texto lido na caixinha para o usuário ver
+                    textArea.value = textExtracted;
+                    
+                    // Manda o texto para a nossa função que preenche os campos
+                    analyzeText(textExtracted);
+                    
+                    statusDiv.innerText = "Sucesso! 🎉";
+                    fileInput.value = ""; // Limpa o input de arquivo
+                } catch (error) {
+                    console.error(error);
+                    statusDiv.innerText = "Erro ao ler a imagem. Tente uma mais nítida.";
+                    statusDiv.style.color = "var(--red)";
+                } finally {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    setTimeout(() => statusDiv.innerText = "", 4000);
+                }
+            } 
+            // Se não tem imagem, mas tem texto colado na caixa
+            else if (textArea.value.trim() !== '') {
+                analyzeText(textArea.value);
+                toggleReader(); // Recolhe a gaveta
+            } 
+            // Se não tem nada
+            else {
+                statusDiv.innerText = "Insira um print ou cole o texto!";
+                statusDiv.style.color = "var(--red)";
+                setTimeout(() => statusDiv.innerText = "", 3000);
+            }
+        }
+
+        // Função que analisa o texto (seja vindo da imagem ou colado)
+        function analyzeText(rawText) {
+            const smartText = rawText.toLowerCase();
+
+            // Tenta achar o valor numérico
+            const valueMatch = smartText.match(/r\$\s*(\d+[.,]\d+)/) || smartText.match(/(\d+[.,]\d+)/);
+            if(valueMatch) amountInput.value = parseFloat(valueMatch[1].replace(',', '.'));
+
+            // Tenta achar o método
+            if(smartText.includes('crédito') || smartText.includes('credito') || smartText.includes('nubank')) {
+                document.getElementById('payment-method').value = 'Crédito';
+                typeInput.value = 'minus';
+            } else if(smartText.includes('débito') || smartText.includes('debito')) {
+                document.getElementById('payment-method').value = 'Débito';
+                typeInput.value = 'minus';
+            } else if(smartText.includes('pix') || smartText.includes('transferência enviada')) {
+                document.getElementById('payment-method').value = 'Pix/Dinheiro';
+                typeInput.value = 'minus';
+            } else if(smartText.includes('recebid') || smartText.includes('transferência recebida')) {
+                typeInput.value = 'plus';
+            }
+
+            // Tenta achar o nome do local/pessoa (O que vem depois de "em " ou "para ")
+            const nameMatch = smartText.match(/(?:em|para)\s+([a-záéíóúãõç\s]+)/i);
+            textInput.value = nameMatch ? nameMatch[1].trim().substring(0, 20) : "Auto Leitura da Imagem";
+            
+            updateButtonColor();
+        }
+
+        // === ANIMAÇÃO E SALVAMENTO ===
         function animateCoinAndSave(transactionDataArr) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'coin-wrapper';
+            
             const coin = document.createElement('div');
             coin.className = 'coin-anim';
+            wrapper.appendChild(coin);
             
-            // Posição de origem (Botão)
             const btnRect = submitBtn.getBoundingClientRect();
-            const startX = btnRect.left + (btnRect.width / 2);
-            const startY = btnRect.top + (btnRect.height / 2);
+            const startX = btnRect.left + (btnRect.width / 2) - 12;
+            const startY = btnRect.top + (btnRect.height / 2) - 12;
             
-            coin.style.left = startX + 'px';
-            coin.style.top = startY + 'px';
-            document.body.appendChild(coin);
+            wrapper.style.left = startX + 'px';
+            wrapper.style.top = startY + 'px';
+            document.body.appendChild(wrapper);
 
-            // Força a renderização
-            void coin.offsetWidth;
-
-            // Posição de destino (Topo da lista de histórico)
             const listRect = list.getBoundingClientRect();
             const destX = listRect.left + 50; 
-            const destY = listRect.top + 30;
+            const destY = listRect.top > 0 ? listRect.top + 30 : window.innerHeight / 2;
 
-            // Transição CSS gerada no JS
-            coin.style.transition = 'transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.7s';
-            coin.style.transform = `translate(${destX - startX}px, ${destY - startY}px) scale(0.5)`;
-            coin.style.opacity = '0.5';
-
-            // Quando a moeda bater no histórico (0.7s depois)
             setTimeout(() => {
-                coin.remove();
-                // Salva os dados de fato e atualiza a tela
+                wrapper.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s';
+                wrapper.style.transform = `translate(${destX - startX}px, ${destY - startY}px) scale(0.5)`;
+                wrapper.style.opacity = '0.3';
+            }, 10);
+
+            setTimeout(() => {
+                wrapper.remove();
                 transactions.push(...transactionDataArr);
                 updateLocalStorage();
                 init();
-            }, 700);
+            }, 610);
         }
 
         function addTransaction(e) {
             e.preventDefault();
-            
             let totalAmount = parseFloat(amountInput.value);
             let numInstallments = parseInt(document.getElementById('installments').value);
             let isMinus = typeInput.value === 'minus';
-            
             totalAmount = isMinus ? -Math.abs(totalAmount) : Math.abs(totalAmount);
             let installmentAmount = totalAmount / numInstallments;
             
@@ -342,7 +421,6 @@
             let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]);
 
             let newTransactions = [];
-
             for(let i = 0; i < numInstallments; i++) {
                 let tempDate = new Date(year, month + i, day);
                 let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
@@ -357,39 +435,10 @@
                     debt: document.getElementById('debt-to').value
                 });
             }
-
-            // Inicia a animação e passa as transações para serem salvas depois do voo
             animateCoinAndSave(newTransactions);
-
-            // Limpa formulário enquanto a moeda voa
             textInput.value = '';
             amountInput.value = '';
             document.getElementById('installments').value = '1';
-        }
-
-        function analyzeNotification() {
-            const smartText = document.getElementById('smart-text').value.toLowerCase();
-            if(!smartText) return;
-
-            const valueMatch = smartText.match(/r\$\s*(\d+[.,]\d+)/) || smartText.match(/(\d+[.,]\d+)/);
-            if(valueMatch) amountInput.value = parseFloat(valueMatch[1].replace(',', '.'));
-
-            if(smartText.includes('crédito') || smartText.includes('credito')) {
-                document.getElementById('payment-method').value = 'Crédito';
-                typeInput.value = 'minus';
-            } else if(smartText.includes('débito') || smartText.includes('debito')) {
-                document.getElementById('payment-method').value = 'Débito';
-                typeInput.value = 'minus';
-            } else if(smartText.includes('recebid') || smartText.includes('transferência')) {
-                typeInput.value = 'plus';
-            }
-
-            const nameMatch = smartText.match(/(?:em|para)\s+([a-záéíóúãõç\s]+)/i);
-            textInput.value = nameMatch ? nameMatch[1].trim().substring(0, 20) : "Auto Leitura";
-            
-            updateButtonColor();
-            toggleReader(); // Esconde a gaveta após preencher
-            document.getElementById('smart-text').value = '';
         }
 
         function addTransactionDOM(transaction) {
