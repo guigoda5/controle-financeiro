@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Controle Financeiro</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --card-bg: #fff;
+            --text-color: #333;
+            --green: #2ecc71;
+            --red: #e74c3c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 400px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        .balance-card { background: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
+        .balance-card h2 { font-size: 32px; margin-top: 10px; }
+        .summary { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .summary div { background: var(--card-bg); padding: 15px; border-radius: 8px; width: 48%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .money-plus { color: var(--green); font-size: 20px; font-weight: bold; }
+        .money-minus { color: var(--red); font-size: 20px; font-weight: bold; }
+        h3 { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        .list { list-style-type: none; margin-bottom: 20px; }
+        .list li { background: var(--card-bg); box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; position: relative; margin-bottom: 10px; }
+        .list li.plus { border-right: 5px solid var(--green); }
+        .list li.minus { border-right: 5px solid var(--red); }
+        .delete-btn { background: var(--red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; opacity: 0; transition: opacity 0.3s; position: absolute; left: -40px; }
+        .list li:hover .delete-btn { opacity: 1; }
+        form { display: flex; flex-direction: column; }
+        input, select, button { padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Minhas Finanças</h1>
+
+        <div class="balance-card">
+            <h4>Saldo Atual</h4>
+            <h2 id="balance">R$ 0.00</h2>
+        </div>
+
+        <div class="summary">
+            <div>
+                <h4>Receitas</h4>
+                <p id="money-plus" class="money-plus">+ R$ 0.00</p>
+            </div>
+            <div>
+                <h4>Despesas</h4>
+                <p id="money-minus" class="money-minus">- R$ 0.00</p>
+            </div>
+        </div>
+
+        <h3>Histórico</h3>
+        <ul id="list" class="list">
+            </ul>
+
+        <h3>Adicionar Transação</h3>
+        <form id="form">
+            <input type="text" id="text" placeholder="Nome (Ex: Salário, Padaria)..." required />
+            <select id="type">
+                <option value="plus">Entrada (+)</option>
+                <option value="minus">Saída (-)</option>
+            </select>
+            <input type="number" id="amount" placeholder="Valor (Ex: 150.50)" step="0.01" required />
+            <button type="submit">Adicionar</button>
+        </form>
+    </div>
+
+    <script>
+        const balance = document.getElementById('balance');
+        const money_plus = document.getElementById('money-plus');
+        const money_minus = document.getElementById('money-minus');
+        const list = document.getElementById('list');
+        const form = document.getElementById('form');
+        const text = document.getElementById('text');
+        const amount = document.getElementById('amount');
+        const type = document.getElementById('type');
+
+        // Puxa as transações salvas no navegador ou cria um array vazio
+        const localStorageTransactions = JSON.parse(localStorage.getItem('transactions'));
+        let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
+
+        // Adiciona transação
+        function addTransaction(e) {
+            e.preventDefault();
+            let transactionAmount = parseFloat(amount.value);
+            
+            // Se for saída, transforma o número em negativo
+            if(type.value === 'minus') {
+                transactionAmount = -Math.abs(transactionAmount);
+            }
+
+            const transaction = {
+                id: Math.floor(Math.random() * 100000000),
+                text: text.value,
+                amount: transactionAmount
+            };
+
+            transactions.push(transaction);
+            addTransactionDOM(transaction);
+            updateValues();
+            updateLocalStorage();
+
+            text.value = '';
+            amount.value = '';
+        }
+
+        // Adiciona a transação na lista visual
+        function addTransactionDOM(transaction) {
+            const sign = transaction.amount < 0 ? '-' : '+';
+            const item = document.createElement('li');
+            item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
+            item.innerHTML = `
+                ${transaction.text} <span>${sign} R$ ${Math.abs(transaction.amount).toFixed(2)}</span>
+                <button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button>
+            `;
+            list.appendChild(item);
+        }
+
+        // Atualiza os valores de Saldo, Receitas e Despesas
+        function updateValues() {
+            const amounts = transactions.map(transaction => transaction.amount);
+            const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
+            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+
+            balance.innerText = `R$ ${total}`;
+            money_plus.innerText = `+ R$ ${income}`;
+            money_minus.innerText = `- R$ ${expense}`;
+        }
+
+        // Remove transação pelo ID
+        function removeTransaction(id) {
+            transactions = transactions.filter(transaction => transaction.id !== id);
+            updateLocalStorage();
+            init();
+        }
+
+        // Salva no LocalStorage do navegador
+        function updateLocalStorage() {
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
+
+        // Inicia o App
+        function init() {
+            list.innerHTML = '';
+            transactions.forEach(addTransactionDOM);
+            updateValues();
+        }
+
+        init();
+        form.addEventListener('submit', addTransaction);
+    </script>
+</body>
+</html>
