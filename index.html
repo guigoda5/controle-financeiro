@@ -106,10 +106,10 @@
         
         .reminders-wrapper { margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px; }
         .reminders-header { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--orange); display: flex; justify-content: space-between; align-items: center; }
-        .reminders-list { list-style: none; max-height: 120px; overflow-y: auto; margin-bottom: 12px; }
+        .reminders-list { list-style: none; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
         .reminders-list::-webkit-scrollbar { width: 4px; }
         .reminders-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; line-height: 1.4; color: #fff;}
+        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; line-height: 1.4; color: #fff;}
         
         .reminder-form { display: flex; gap: 8px; }
         .reminder-form input { padding: 10px; font-size: 12px; flex: 1; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); outline: none; transition: 0.3s; }
@@ -288,15 +288,14 @@
 
                 <div class="reminders-wrapper">
                     <div class="reminders-header">
-                        <span>Lembretes do dia</span>
-                        <span id="selected-date-display" style="color: var(--text-color); font-weight: 400;">00/00</span>
-                    </div>
+                        <span>Próximos eventos</span>
+                        </div>
                     
                     <ul class="reminders-list" id="reminders-list">
                         </ul>
 
                     <form class="reminder-form" onsubmit="addReminder(event)">
-                        <input type="text" id="reminder-text" placeholder="Novo lembrete..." autocomplete="off" />
+                        <input type="text" id="reminder-text" placeholder="Adicionar no dia selecionado..." autocomplete="off" />
                         <button type="submit">+</button>
                     </form>
                 </div>
@@ -604,23 +603,51 @@
         }
 
         function renderReminders() {
-            const dateStr = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}-${String(selDate.getDate()).padStart(2, '0')}`;
-            const dayReminders = reminders.filter(r => r.date === dateStr);
-            
             const listUI = document.getElementById('reminders-list');
             listUI.innerHTML = '';
-            document.getElementById('selected-date-display').innerText = `${String(selDate.getDate()).padStart(2, '0')}/${String(selDate.getMonth() + 1).padStart(2, '0')}`;
             
-            if(dayReminders.length === 0) {
-                listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento livre.</li>`;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Filtra apenas eventos que vão acontecer (hoje ou no futuro)
+            let upcomingReminders = reminders.filter(r => {
+                const parts = r.date.split('-'); 
+                const rDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                return rDate >= today;
+            });
+
+            // Ordena do mais próximo ao mais distante
+            upcomingReminders.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            if(upcomingReminders.length === 0) {
+                listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento próximo.</li>`;
                 return;
             }
             
-            dayReminders.forEach(r => {
+            upcomingReminders.forEach(r => {
+                const parts = r.date.split('-');
+                const rDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                const diffTime = rDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let daysText = "";
+                if (diffDays === 0) {
+                    daysText = "Hoje!";
+                } else if (diffDays === 1) {
+                    daysText = "Amanhã";
+                } else {
+                    daysText = `Faltam ${diffDays} dias`;
+                }
+
+                const dateBR = `${parts[2]}/${parts[1]}`;
+
                 listUI.innerHTML += `
                     <li class="reminder-item">
-                        <span>📌 ${r.text}</span>
-                        <button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px;">X</button>
+                        <div style="display: flex; flex-direction: column; gap: 3px; flex: 1;">
+                            <span>📌 ${r.text}</span>
+                            <span style="font-size: 10px; color: var(--orange); font-weight: 600;">📅 ${dateBR} • ${daysText}</span>
+                        </div>
+                        <button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px; align-self: center;">X</button>
                     </li>
                 `;
             });
