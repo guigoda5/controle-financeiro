@@ -67,6 +67,16 @@
             border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
             -webkit-appearance: none; 
         }
+
+        /* OCULTAR SETAS DOS INPUTS DE NÚMERO */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* Para o Firefox */
+        }
         
         form select { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); 
@@ -108,11 +118,10 @@
         /* --- DÍVIDAS (NOVO PAINEL) --- */
         .debts-wrapper { max-width: 1200px; margin: 20px auto; }
         
-        /* NOVO RESUMO EXCLUSIVO PARA EMPRESAS */
         .company-debt-summary { 
             background: rgba(0,0,0,0.3); border: 1px solid var(--orange); 
             border-radius: 15px; padding: 15px 20px; margin-bottom: 20px;
-            display: inline-block; /* Fica do tamanho do texto */
+            display: inline-block; 
             border-left: 4px solid var(--orange);
         }
         .company-debt-summary h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
@@ -528,7 +537,7 @@
         function renderDebts() {
             debtsListUI.innerHTML = '';
             
-            let totalRemaining = 0; // Para calcular o valor do novo balãozinho
+            let totalRemaining = 0; 
             
             companyDebts.forEach(debt => {
                 const installmentValue = debt.totalAmount / debt.installments;
@@ -568,7 +577,6 @@
                 debtsListUI.appendChild(card);
             });
             
-            // Atualiza o novo balãozinho isolado
             totalCompanyDebtUI.innerText = `R$ ${totalRemaining.toFixed(2).replace('.', ',')}`;
         }
 
@@ -680,7 +688,6 @@
             const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
             const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             
-            // Aqui ele volta a somar EXCLUSIVAMENTE as dívidas do formulário principal (Michele e Andressa)
             const oldDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
             
             balance.innerText = `R$ ${total.replace('.', ',')}`;
