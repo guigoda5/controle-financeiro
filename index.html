@@ -107,6 +107,17 @@
 
         /* --- DÍVIDAS (NOVO PAINEL) --- */
         .debts-wrapper { max-width: 1200px; margin: 20px auto; }
+        
+        /* NOVO RESUMO EXCLUSIVO PARA EMPRESAS */
+        .company-debt-summary { 
+            background: rgba(0,0,0,0.3); border: 1px solid var(--orange); 
+            border-radius: 15px; padding: 15px 20px; margin-bottom: 20px;
+            display: inline-block; /* Fica do tamanho do texto */
+            border-left: 4px solid var(--orange);
+        }
+        .company-debt-summary h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .company-debt-summary h2 { font-size: 20px; font-weight: 600; margin: 0; color: var(--orange); }
+
         .debts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
         .debt-card { background: rgba(0,0,0,0.3); border: 1px solid var(--orange); border-radius: 15px; padding: 15px; position: relative; }
         .debt-card.finished { border-color: var(--green); opacity: 0.7; }
@@ -146,6 +157,7 @@
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .form-row { flex-direction: column; gap: 12px; }
+            .company-debt-summary { width: 100%; text-align: center; }
         }
 
         @keyframes spin { 100% { transform: rotateY(360deg); } }
@@ -238,7 +250,7 @@
                     <h2 id="money-minus" class="val-minus">- R$ 0,00</h2>
                 </div>
                 <div class="summary-card glass-panel" style="border-bottom: 3px solid var(--orange);">
-                    <h4>Devendo Total</h4>
+                    <h4>Devendo Amigos</h4>
                     <h2 id="money-debt" class="val-debt">R$ 0,00</h2>
                 </div>
             </div>
@@ -279,8 +291,13 @@
     </div>
 
     <div class="debts-wrapper glass-panel">
-        <div class="goals-header">
+        <div class="goals-header" style="margin-bottom: 10px;">
             <h2 class="section-title" style="margin:0; color: var(--orange);">🏢 Gerenciamento de Dívidas (Empresas)</h2>
+        </div>
+        
+        <div class="company-debt-summary">
+            <h4>Total Devendo para Empresas</h4>
+            <h2 id="total-company-debt">R$ 0,00</h2>
         </div>
         
         <form id="debt-form" style="margin-bottom: 25px;">
@@ -313,6 +330,7 @@
         
         const debtForm = document.getElementById('debt-form');
         const debtsListUI = document.getElementById('debts-list');
+        const totalCompanyDebtUI = document.getElementById('total-company-debt');
 
         try {
             document.getElementById('date').valueAsDate = new Date();
@@ -336,7 +354,6 @@
             }
         } catch (error) { transactions = []; }
         
-        // --- DADOS DAS DÍVIDAS ---
         let companyDebts = [];
         try {
             const savedDebts = localStorage.getItem('companyDebts');
@@ -346,7 +363,6 @@
             }
         } catch(err) { companyDebts = []; }
 
-        // --- DADOS DA CAIXINHA ---
         let goalData = { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
         try {
             const savedGoal = localStorage.getItem('myGoal');
@@ -487,7 +503,6 @@
             }, 510);
         }
 
-        // --- FUNÇÕES DE DÍVIDAS EMPRESARIAIS ---
         function addCompanyDebt(e) {
             e.preventDefault();
             const company = document.getElementById('debt-company').value;
@@ -513,11 +528,17 @@
         function renderDebts() {
             debtsListUI.innerHTML = '';
             
+            let totalRemaining = 0; // Para calcular o valor do novo balãozinho
+            
             companyDebts.forEach(debt => {
                 const installmentValue = debt.totalAmount / debt.installments;
                 const remainingAmount = debt.totalAmount - (installmentValue * debt.paidInstallments);
                 const isFinished = debt.paidInstallments >= debt.installments;
                 const pct = (debt.paidInstallments / debt.installments) * 100;
+
+                if (!isFinished) {
+                    totalRemaining += remainingAmount;
+                }
 
                 const card = document.createElement('div');
                 card.className = `debt-card ${isFinished ? 'finished' : ''}`;
@@ -546,6 +567,9 @@
                 `;
                 debtsListUI.appendChild(card);
             });
+            
+            // Atualiza o novo balãozinho isolado
+            totalCompanyDebtUI.innerText = `R$ ${totalRemaining.toFixed(2).replace('.', ',')}`;
         }
 
         function payDebtInstallment(id, company, value) {
@@ -554,7 +578,6 @@
                 if(debt) {
                     debt.paidInstallments += 1;
                     
-                    // Adiciona a parcela no histórico principal como saída
                     let tempDate = new Date();
                     let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
                     
@@ -652,28 +675,18 @@
         }
 
         function updateValues(filtered) {
-            // Valores do histórico exibido no mês selecionado
             const amounts = filtered.map(t => parseFloat(t.amount) || 0);
             const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
             const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
             const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             
-            // Dívidas antigas (Michele/Andressa registradas pelo form principal)
+            // Aqui ele volta a somar EXCLUSIVAMENTE as dívidas do formulário principal (Michele e Andressa)
             const oldDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
             
-            // Novas dívidas com empresas (Soma o valor restante de todas que não estão quitadas)
-            const activeCompanyDebts = companyDebts.filter(d => d.paidInstallments < d.installments);
-            const newCompanyDebtTotal = activeCompanyDebts.reduce((acc, d) => {
-                const remaining = d.totalAmount - ((d.totalAmount / d.installments) * d.paidInstallments);
-                return acc + remaining;
-            }, 0);
-
             balance.innerText = `R$ ${total.replace('.', ',')}`;
             money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
             money_minus.innerText = `- R$ ${expense.replace('.', ',')}`;
-            
-            // O card "Devendo Total" agora soma as dívidas com amigos + o saldo devedor nas empresas
-            money_debt.innerText = `R$ ${(oldDebt + newCompanyDebtTotal).toFixed(2).replace('.', ',')}`;
+            money_debt.innerText = `R$ ${oldDebt.toFixed(2).replace('.', ',')}`;
         }
 
         function removeTransaction(id) { 
