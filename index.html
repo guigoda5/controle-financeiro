@@ -47,7 +47,8 @@
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
         /* --- LAYOUT PRINCIPAL --- */
-        .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; }
+        /* NOVIDADE: align-items: start faz com que o painel esquerdo não estique até o final da página */
+        .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; align-items: start; }
 
         .glass-panel { 
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); 
@@ -75,7 +76,7 @@
             margin: 0;
         }
         input[type="number"] {
-            -moz-appearance: textfield; /* Para o Firefox */
+            -moz-appearance: textfield; 
         }
         
         form select { 
@@ -116,7 +117,8 @@
         .goal-val { color: var(--green); font-weight: 600; }
 
         /* --- DÍVIDAS (NOVO PAINEL) --- */
-        .debts-wrapper { max-width: 1200px; margin: 20px auto; }
+        /* NOVIDADE: Wrapper de dívidas agora acompanha o tamanho máximo e tem margem para separar do layout de cima */
+        .debts-wrapper { max-width: 1200px; margin: 20px auto 0 auto; }
         
         .company-debt-summary { 
             background: rgba(0,0,0,0.3); border: 1px solid var(--orange); 
