@@ -62,26 +62,19 @@
         /* --- FORMULÁRIO E GAVETAS --- */
         form { display: flex; flex-direction: column; gap: 12px; }
         
-        /* Inputs de Texto e Data */
         form input { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
             border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
             -webkit-appearance: none; 
         }
         
-        /* Selects (As Gavetas) */
         form select { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); 
             border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
             cursor: pointer;
         }
         
-        /* O fundo da lista de categorias quando você clica */
-        select option {
-            background: #1a1c2c; 
-            color: #fff;
-            padding: 10px;
-        }
+        select option { background: #1a1c2c; color: #fff; padding: 10px; }
 
         form input:focus, form select:focus { border-color: var(--blue); background: rgba(0,0,0,0.6); }
         
@@ -112,6 +105,21 @@
         .goal-history-list li { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
         .goal-val { color: var(--green); font-weight: 600; }
 
+        /* --- DÍVIDAS (NOVO PAINEL) --- */
+        .debts-wrapper { max-width: 1200px; margin: 20px auto; }
+        .debts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .debt-card { background: rgba(0,0,0,0.3); border: 1px solid var(--orange); border-radius: 15px; padding: 15px; position: relative; }
+        .debt-card.finished { border-color: var(--green); opacity: 0.7; }
+        .debt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .debt-company { font-weight: 600; font-size: 16px; color: #fff; }
+        .debt-details { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5; }
+        .debt-progress-container { width: 100%; background: rgba(0,0,0,0.6); border-radius: 5px; height: 8px; overflow: hidden; margin-bottom: 10px; }
+        .debt-progress-bar { height: 100%; background: var(--orange); transition: width 0.5s ease; }
+        .debt-card.finished .debt-progress-bar { background: var(--green); }
+        .debt-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-pay-debt { flex: 1; background: var(--green); color: #000; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 12px; }
+        .btn-pay-debt:disabled { background: #555; color: #888; cursor: not-allowed; }
+        
         /* --- HISTÓRICO PRINCIPAL --- */
         .list { list-style: none; min-height: 150px; position: relative; }
         .list li { background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.2); animation: fadeIn 0.5s ease-out forwards; }
@@ -134,7 +142,6 @@
             body { padding: 15px 10px; }
             .top-nav { flex-direction: column; justify-content: center; text-align: center; }
             .header-left { flex-direction: column; gap: 10px; justify-content: center; }
-            
             .layout { grid-template-columns: 1fr; gap: 20px; }
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -205,7 +212,7 @@
                         <option value="Crédito">Crédito</option>
                     </select>
                     <select id="debt-to">
-                        <option value="Nenhum">Dívida?</option>
+                        <option value="Nenhum">Dívida Amigos?</option>
                         <option value="Michele">Michele</option>
                         <option value="Andressa">Andressa</option>
                     </select>
@@ -231,7 +238,7 @@
                     <h2 id="money-minus" class="val-minus">- R$ 0,00</h2>
                 </div>
                 <div class="summary-card glass-panel" style="border-bottom: 3px solid var(--orange);">
-                    <h4>Devendo</h4>
+                    <h4>Devendo Total</h4>
                     <h2 id="money-debt" class="val-debt">R$ 0,00</h2>
                 </div>
             </div>
@@ -271,6 +278,24 @@
 
     </div>
 
+    <div class="debts-wrapper glass-panel">
+        <div class="goals-header">
+            <h2 class="section-title" style="margin:0; color: var(--orange);">🏢 Gerenciamento de Dívidas (Empresas)</h2>
+        </div>
+        
+        <form id="debt-form" style="margin-bottom: 25px;">
+            <div class="form-row">
+                <input type="text" id="debt-company" placeholder="Empresa / Credor" required />
+                <input type="number" id="debt-total" placeholder="Valor Total (R$)" step="0.01" required />
+                <input type="number" id="debt-installments" placeholder="Nº de Parcelas" min="1" required />
+                <button type="submit" class="btn-submit" style="background-color: var(--orange); flex-shrink: 0; min-width: 150px;">Cadastrar</button>
+            </div>
+        </form>
+
+        <div id="debts-list" class="debts-grid">
+            </div>
+    </div>
+
     <script>
         const balance = document.getElementById('balance');
         const money_plus = document.getElementById('money-plus');
@@ -285,6 +310,9 @@
         const submitBtn = document.getElementById('submit-btn');
         const monthFilter = document.getElementById('month-filter');
         const goalHistoryList = document.getElementById('goal-history');
+        
+        const debtForm = document.getElementById('debt-form');
+        const debtsListUI = document.getElementById('debts-list');
 
         try {
             document.getElementById('date').valueAsDate = new Date();
@@ -306,10 +334,19 @@
                 transactions = JSON.parse(savedData);
                 if (!Array.isArray(transactions)) transactions = [];
             }
-        } catch (error) {
-            transactions = [];
-        }
+        } catch (error) { transactions = []; }
         
+        // --- DADOS DAS DÍVIDAS ---
+        let companyDebts = [];
+        try {
+            const savedDebts = localStorage.getItem('companyDebts');
+            if(savedDebts) {
+                companyDebts = JSON.parse(savedDebts);
+                if(!Array.isArray(companyDebts)) companyDebts = [];
+            }
+        } catch(err) { companyDebts = []; }
+
+        // --- DADOS DA CAIXINHA ---
         let goalData = { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
         try {
             const savedGoal = localStorage.getItem('myGoal');
@@ -396,7 +433,7 @@
         }
 
         function exportData() {
-            const dataStr = JSON.stringify({ transactions, goalData });
+            const dataStr = JSON.stringify({ transactions, goalData, companyDebts });
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
@@ -411,6 +448,7 @@
                 try {
                     const imported = JSON.parse(e.target.result);
                     if(imported.transactions) transactions = imported.transactions;
+                    if(imported.companyDebts) companyDebts = imported.companyDebts;
                     if(imported.goalData) {
                         goalData = imported.goalData;
                         if(!goalData.history) goalData.history = [];
@@ -447,6 +485,101 @@
                 transactions.push(...transactionDataArr);
                 updateLocalStorage(); init();
             }, 510);
+        }
+
+        // --- FUNÇÕES DE DÍVIDAS EMPRESARIAIS ---
+        function addCompanyDebt(e) {
+            e.preventDefault();
+            const company = document.getElementById('debt-company').value;
+            const total = parseFloat(document.getElementById('debt-total').value);
+            const installments = parseInt(document.getElementById('debt-installments').value);
+
+            companyDebts.push({
+                id: Math.floor(Math.random() * 100000000),
+                company: company,
+                totalAmount: total,
+                installments: installments,
+                paidInstallments: 0
+            });
+
+            document.getElementById('debt-company').value = '';
+            document.getElementById('debt-total').value = '';
+            document.getElementById('debt-installments').value = '';
+            
+            updateLocalStorage();
+            init();
+        }
+
+        function renderDebts() {
+            debtsListUI.innerHTML = '';
+            
+            companyDebts.forEach(debt => {
+                const installmentValue = debt.totalAmount / debt.installments;
+                const remainingAmount = debt.totalAmount - (installmentValue * debt.paidInstallments);
+                const isFinished = debt.paidInstallments >= debt.installments;
+                const pct = (debt.paidInstallments / debt.installments) * 100;
+
+                const card = document.createElement('div');
+                card.className = `debt-card ${isFinished ? 'finished' : ''}`;
+                
+                card.innerHTML = `
+                    <div class="debt-header">
+                        <span class="debt-company">🏢 ${debt.company}</span>
+                        <button class="delete-btn" onclick="deleteCompanyDebt(${debt.id})">X</button>
+                    </div>
+                    <div class="debt-details">
+                        <strong>Total:</strong> R$ ${debt.totalAmount.toFixed(2).replace('.', ',')}<br>
+                        <strong>Restante:</strong> R$ ${remainingAmount.toFixed(2).replace('.', ',')}<br>
+                        <strong>Valor da Parcela:</strong> R$ ${installmentValue.toFixed(2).replace('.', ',')}
+                    </div>
+                    
+                    <div style="font-size: 11px; margin-bottom: 3px;">Progresso: ${debt.paidInstallments}/${debt.installments} parcelas</div>
+                    <div class="debt-progress-container">
+                        <div class="debt-progress-bar" style="width: ${pct}%"></div>
+                    </div>
+
+                    <div class="debt-actions">
+                        <button class="btn-pay-debt" ${isFinished ? 'disabled' : ''} onclick="payDebtInstallment(${debt.id}, '${debt.company}', ${installmentValue})">
+                            ${isFinished ? '✅ Quitado' : '💳 Pagar Parcela'}
+                        </button>
+                    </div>
+                `;
+                debtsListUI.appendChild(card);
+            });
+        }
+
+        function payDebtInstallment(id, company, value) {
+            if(confirm(`Confirmar o pagamento de 1 parcela de R$ ${value.toFixed(2).replace('.',',')} para ${company}?`)) {
+                let debt = companyDebts.find(d => d.id === id);
+                if(debt) {
+                    debt.paidInstallments += 1;
+                    
+                    // Adiciona a parcela no histórico principal como saída
+                    let tempDate = new Date();
+                    let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                    
+                    transactions.push({
+                        id: Math.floor(Math.random() * 100000000),
+                        text: `Pagamento: ${company} (${debt.paidInstallments}/${debt.installments})`,
+                        amount: -value,
+                        date: formattedDate,
+                        category: 'Casa', 
+                        method: 'Pix/Dinheiro',
+                        debt: 'Nenhum'
+                    });
+
+                    updateLocalStorage();
+                    init();
+                }
+            }
+        }
+
+        function deleteCompanyDebt(id) {
+            if(confirm("Tem certeza que deseja apagar este registro de dívida? (Isso não apaga os pagamentos já feitos no histórico)")) {
+                companyDebts = companyDebts.filter(d => d.id !== id);
+                updateLocalStorage();
+                init();
+            }
         }
 
         function addTransaction(e) {
@@ -519,17 +652,28 @@
         }
 
         function updateValues(filtered) {
+            // Valores do histórico exibido no mês selecionado
             const amounts = filtered.map(t => parseFloat(t.amount) || 0);
             const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
             const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
             const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             
-            const totalDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
+            // Dívidas antigas (Michele/Andressa registradas pelo form principal)
+            const oldDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
+            
+            // Novas dívidas com empresas (Soma o valor restante de todas que não estão quitadas)
+            const activeCompanyDebts = companyDebts.filter(d => d.paidInstallments < d.installments);
+            const newCompanyDebtTotal = activeCompanyDebts.reduce((acc, d) => {
+                const remaining = d.totalAmount - ((d.totalAmount / d.installments) * d.paidInstallments);
+                return acc + remaining;
+            }, 0);
 
             balance.innerText = `R$ ${total.replace('.', ',')}`;
             money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
             money_minus.innerText = `- R$ ${expense.replace('.', ',')}`;
-            money_debt.innerText = `R$ ${totalDebt.toFixed(2).replace('.', ',')}`;
+            
+            // O card "Devendo Total" agora soma as dívidas com amigos + o saldo devedor nas empresas
+            money_debt.innerText = `R$ ${(oldDebt + newCompanyDebtTotal).toFixed(2).replace('.', ',')}`;
         }
 
         function removeTransaction(id) { 
@@ -546,7 +690,10 @@
             init(); 
         }
         
-        function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
+        function updateLocalStorage() { 
+            localStorage.setItem('transactions', JSON.stringify(transactions)); 
+            localStorage.setItem('companyDebts', JSON.stringify(companyDebts));
+        }
 
         function init() {
             try {
@@ -558,13 +705,16 @@
                 });
                 filtered.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
                 filtered.forEach(addTransactionDOM);
+                
                 updateValues(filtered);
                 updateGoalUI();
+                renderDebts();
             } catch(e) {}
         }
 
         if(monthFilter) monthFilter.addEventListener('change', init);
         if(form) form.addEventListener('submit', addTransaction);
+        if(debtForm) debtForm.addEventListener('submit', addCompanyDebt);
 
         init();
     </script>
