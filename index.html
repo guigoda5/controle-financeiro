@@ -47,7 +47,6 @@
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
         /* --- LAYOUT PRINCIPAL --- */
-        /* NOVIDADE: align-items: start faz com que o painel esquerdo não estique até o final da página */
         .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; align-items: start; }
 
         .glass-panel { 
@@ -117,8 +116,7 @@
         .goal-val { color: var(--green); font-weight: 600; }
 
         /* --- DÍVIDAS (NOVO PAINEL) --- */
-        /* NOVIDADE: Wrapper de dívidas agora acompanha o tamanho máximo e tem margem para separar do layout de cima */
-        .debts-wrapper { max-width: 1200px; margin: 20px auto 0 auto; }
+        .debts-wrapper { margin-top: 20px; } /* Agora usa margin-top porque está dentro da grid */
         
         .company-debt-summary { 
             background: rgba(0,0,0,0.3); border: 1px solid var(--orange); 
@@ -297,34 +295,31 @@
                 </div>
                 <ul id="list" class="list"></ul>
             </div>
-        </div>
 
-    </div>
+            <div class="debts-wrapper glass-panel">
+                <div class="goals-header" style="margin-bottom: 10px;">
+                    <h2 class="section-title" style="margin:0; color: var(--orange);">🏢 Gerenciamento de Dívidas (Empresas)</h2>
+                </div>
+                
+                <div class="company-debt-summary">
+                    <h4>Total Devendo para Empresas</h4>
+                    <h2 id="total-company-debt">R$ 0,00</h2>
+                </div>
+                
+                <form id="debt-form" style="margin-bottom: 25px;">
+                    <div class="form-row">
+                        <input type="text" id="debt-company" placeholder="Empresa / Credor" required />
+                        <input type="number" id="debt-total" placeholder="Valor Total (R$)" step="0.01" required />
+                        <input type="number" id="debt-installments" placeholder="Nº de Parcelas" min="1" required />
+                        <button type="submit" class="btn-submit" style="background-color: var(--orange); flex-shrink: 0; min-width: 150px;">Cadastrar</button>
+                    </div>
+                </form>
 
-    <div class="debts-wrapper glass-panel">
-        <div class="goals-header" style="margin-bottom: 10px;">
-            <h2 class="section-title" style="margin:0; color: var(--orange);">🏢 Gerenciamento de Dívidas (Empresas)</h2>
-        </div>
-        
-        <div class="company-debt-summary">
-            <h4>Total Devendo para Empresas</h4>
-            <h2 id="total-company-debt">R$ 0,00</h2>
-        </div>
-        
-        <form id="debt-form" style="margin-bottom: 25px;">
-            <div class="form-row">
-                <input type="text" id="debt-company" placeholder="Empresa / Credor" required />
-                <input type="number" id="debt-total" placeholder="Valor Total (R$)" step="0.01" required />
-                <input type="number" id="debt-installments" placeholder="Nº de Parcelas" min="1" required />
-                <button type="submit" class="btn-submit" style="background-color: var(--orange); flex-shrink: 0; min-width: 150px;">Cadastrar</button>
+                <div id="debts-list" class="debts-grid">
+                    </div>
             </div>
-        </form>
 
-        <div id="debts-list" class="debts-grid">
-            </div>
-    </div>
-
-    <script>
+        </div> </div> <script>
         const balance = document.getElementById('balance');
         const money_plus = document.getElementById('money-plus');
         const money_minus = document.getElementById('money-minus');
