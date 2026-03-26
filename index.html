@@ -6,8 +6,6 @@
     <title>Guigo da 5 - Finanças Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
-
     <style>
         :root {
             --bg-dark: #0f111a;
@@ -48,28 +46,6 @@
         }
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
-        /* --- LEITOR INTELIGENTE FLUTUANTE --- */
-        .smart-reader-wrapper { position: relative; } 
-        .btn-reader { 
-            background: linear-gradient(45deg, var(--blue), #02a89b); color: #000; border: none; 
-            padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; 
-            box-shadow: 0 4px 15px rgba(3, 218, 198, 0.3); transition: 0.3s; 
-        }
-        .btn-reader:active { transform: scale(0.95); }
-        
-        .reader-container {
-            position: absolute; top: 100%; right: 0; width: 320px; 
-            max-height: 0; overflow: hidden; opacity: 0; z-index: 9999;
-            transition: all 0.4s ease-in-out;
-        }
-        .reader-container.show { max-height: 500px; opacity: 1; padding-top: 15px; }
-        .reader-glass { padding: 20px; }
-        
-        .custom-file-upload { display: block; width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px dashed var(--glass-border); border-radius: 10px; color: var(--text-muted); text-align: center; cursor: pointer; font-size: 12px; margin-bottom: 5px; }
-        .reader-glass textarea { height: 60px; width: 100%; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-color); font-size: 12px; outline: none; transition: 0.3s; resize: none; }
-        .reader-glass textarea:focus { border-color: var(--blue); }
-        .btn-fill { width: 100%; background: var(--green); color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-
         /* --- LAYOUT PRINCIPAL --- */
         .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; }
 
@@ -90,10 +66,10 @@
         form input { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
             border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
-            -webkit-appearance: none; /* Mantem liso para caixas de texto */
+            -webkit-appearance: none; 
         }
         
-        /* Selects (As Gavetas) - Removido o appearance:none para manter a setinha nativa e bonita */
+        /* Selects (As Gavetas) */
         form select { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); 
             border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
@@ -159,10 +135,6 @@
             .top-nav { flex-direction: column; justify-content: center; text-align: center; }
             .header-left { flex-direction: column; gap: 10px; justify-content: center; }
             
-            .smart-reader-wrapper { width: 100%; margin-top: 10px; }
-            .btn-reader { width: 100%; justify-content: center; padding: 14px; font-size: 16px; }
-            .reader-container { right: 0; left: 0; width: 100%; } 
-            
             .layout { grid-template-columns: 1fr; gap: 20px; }
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -183,25 +155,6 @@
                 <button class="btn-small" onclick="exportData()">💾 Salvar Backup</button>
                 <button class="btn-small" onclick="document.getElementById('import-file').click()">📂 Restaurar</button>
                 <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
-            </div>
-        </div>
-
-        <div class="smart-reader-wrapper">
-            <button class="btn-reader" onclick="toggleReader()">📸 Print Inteligente</button>
-            
-            <div class="reader-container" id="reader-box">
-                <div class="glass-panel reader-glass">
-                    <p style="font-size: 12px; margin-bottom: 8px; color: var(--text-muted);">1. Anexe o print da notificação:</p>
-                    <label for="image-upload" class="custom-file-upload">📁 Escolher imagem</label>
-                    <input type="file" id="image-upload" accept="image/*" style="display: none;" onchange="updateFileName(this)" />
-                    <span id="file-name-display" style="font-size: 11px; color: var(--blue); text-align: center; display: block; margin-bottom: 10px;"></span>
-                    
-                    <p style="font-size: 12px; margin: 5px 0 8px 0; color: var(--text-muted);">2. Ou cole o texto:</p>
-                    <textarea id="smart-text" placeholder="Cole aqui o aviso do banco..."></textarea>
-                    
-                    <button class="btn-fill" id="btn-analyze" onclick="processSmartInput()">Ler e Preencher</button>
-                    <div id="ocr-status" style="font-size: 12px; color: var(--blue); text-align: center; margin-top: 10px; min-height: 15px;"></div>
-                </div>
             </div>
         </div>
     </header>
@@ -346,13 +299,6 @@
         if(typeInput) typeInput.addEventListener('change', updateButtonColor);
         updateButtonColor();
 
-        function toggleReader() { document.getElementById('reader-box').classList.toggle('show'); }
-        function updateFileName(input) {
-            const display = document.getElementById('file-name-display');
-            if(input.files && input.files[0]) display.innerText = "Imagem Pronta!";
-            else display.innerText = "";
-        }
-
         let transactions = [];
         try {
             const savedData = localStorage.getItem('transactions');
@@ -386,7 +332,6 @@
             localStorage.setItem('myGoal', JSON.stringify(goalData));
         }
 
-        // --- FUNÇÃO ATUALIZADA ---
         function addToGoal() {
             let addVal = prompt("Quanto você quer depositar na caixinha?");
             if(addVal && !isNaN(addVal.replace(',','.'))) {
@@ -398,13 +343,11 @@
                 let m = String(tempDate.getMonth() + 1).padStart(2, '0');
                 let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
                 
-                // Geramos um ID único para amarrar a caixinha e o histórico
                 let syncId = Math.floor(Math.random() * 100000000); 
 
                 goalData.history.push({ id: syncId, amount: val, date: `${d}/${m}` });
                 saveGoal();
 
-                // Lança automaticamente como Saída no histórico
                 transactions.push({
                     id: syncId, 
                     text: '🎯 Depósito Caixinha',
@@ -420,7 +363,6 @@
             }
         }
 
-        // --- FUNÇÃO ATUALIZADA ---
         function removeGoalDeposit(id) {
             let dep = goalData.history.find(d => d.id === id);
             if(dep) {
@@ -428,7 +370,6 @@
                 goalData.history = goalData.history.filter(d => d.id !== id);
                 saveGoal();
 
-                // Remove a saída do histórico geral também
                 transactions = transactions.filter(t => t.id !== id);
                 updateLocalStorage();
                 init();
@@ -481,46 +422,6 @@
                 } catch(err) { alert("Erro ao ler o arquivo de backup."); }
             };
             reader.readAsText(file);
-        }
-
-        async function processSmartInput() {
-            const fileInput = document.getElementById('image-upload');
-            const textArea = document.getElementById('smart-text');
-            const statusDiv = document.getElementById('ocr-status');
-            const btn = document.getElementById('btn-analyze');
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                statusDiv.innerText = "Lendo imagem... ⏳"; btn.disabled = true;
-                try {
-                    const result = await Tesseract.recognize(file, 'por');
-                    textArea.value = result.data.text;
-                    analyzeText(result.data.text);
-                    statusDiv.innerText = "Lido com sucesso!";
-                    fileInput.value = ""; updateFileName(fileInput);
-                } catch (error) { statusDiv.innerText = "Erro na leitura."; } 
-                finally { btn.disabled = false; setTimeout(() => statusDiv.innerText = "", 3000); }
-            } else if (textArea.value.trim() !== '') {
-                analyzeText(textArea.value); toggleReader(); 
-            } else { statusDiv.innerText = "Insira a imagem ou texto!"; setTimeout(() => statusDiv.innerText = "", 2000); }
-        }
-
-        function analyzeText(rawText) {
-            const smartText = rawText.toLowerCase();
-            const valueMatch = smartText.match(/r\$\s*(\d+[.,]\d+)/) || smartText.match(/(\d+[.,]\d+)/);
-            if(valueMatch) amountInput.value = parseFloat(valueMatch[1].replace(',', '.'));
-
-            if(smartText.includes('crédito') || smartText.includes('credito')) {
-                document.getElementById('payment-method').value = 'Crédito'; typeInput.value = 'minus';
-            } else if(smartText.includes('débito') || smartText.includes('debito')) {
-                document.getElementById('payment-method').value = 'Débito'; typeInput.value = 'minus';
-            } else if(smartText.includes('pix') || smartText.includes('enviad')) {
-                document.getElementById('payment-method').value = 'Pix/Dinheiro'; typeInput.value = 'minus';
-            } else if(smartText.includes('recebid')) { typeInput.value = 'plus'; }
-
-            const nameMatch = smartText.match(/(?:em|para)\s+([a-záéíóúãõç\s]+)/i);
-            textInput.value = nameMatch ? nameMatch[1].trim().substring(0, 15) : "Auto Leitura";
-            updateButtonColor();
         }
 
         function animateCoinAndSave(transactionDataArr) {
@@ -631,12 +532,9 @@
             money_debt.innerText = `R$ ${totalDebt.toFixed(2).replace('.', ',')}`;
         }
 
-        // --- FUNÇÃO ATUALIZADA ---
         function removeTransaction(id) { 
-            // Remove da lista principal
             transactions = transactions.filter(t => t.id !== id); 
             
-            // Se a transação excluída for da caixinha, tira o valor de lá também
             let dep = goalData.history.find(d => d.id === id);
             if(dep) {
                 goalData.current -= dep.amount;
