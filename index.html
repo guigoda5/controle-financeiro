@@ -386,6 +386,7 @@
             localStorage.setItem('myGoal', JSON.stringify(goalData));
         }
 
+        // --- FUNÇÃO ATUALIZADA ---
         function addToGoal() {
             let addVal = prompt("Quanto você quer depositar na caixinha?");
             if(addVal && !isNaN(addVal.replace(',','.'))) {
@@ -395,18 +396,42 @@
                 let tempDate = new Date();
                 let d = String(tempDate.getDate()).padStart(2, '0');
                 let m = String(tempDate.getMonth() + 1).padStart(2, '0');
+                let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
                 
-                goalData.history.push({ id: Math.floor(Math.random() * 100000000), amount: val, date: `${d}/${m}` });
+                // Geramos um ID único para amarrar a caixinha e o histórico
+                let syncId = Math.floor(Math.random() * 100000000); 
+
+                goalData.history.push({ id: syncId, amount: val, date: `${d}/${m}` });
                 saveGoal();
+
+                // Lança automaticamente como Saída no histórico
+                transactions.push({
+                    id: syncId, 
+                    text: '🎯 Depósito Caixinha',
+                    amount: -val, 
+                    date: formattedDate,
+                    category: 'Outros', 
+                    method: 'Pix/Dinheiro',
+                    debt: 'Nenhum'
+                });
+
+                updateLocalStorage();
+                init();
             }
         }
 
+        // --- FUNÇÃO ATUALIZADA ---
         function removeGoalDeposit(id) {
             let dep = goalData.history.find(d => d.id === id);
             if(dep) {
                 goalData.current -= dep.amount;
                 goalData.history = goalData.history.filter(d => d.id !== id);
                 saveGoal();
+
+                // Remove a saída do histórico geral também
+                transactions = transactions.filter(t => t.id !== id);
+                updateLocalStorage();
+                init();
             }
         }
 
@@ -606,7 +631,23 @@
             money_debt.innerText = `R$ ${totalDebt.toFixed(2).replace('.', ',')}`;
         }
 
-        function removeTransaction(id) { transactions = transactions.filter(t => t.id !== id); updateLocalStorage(); init(); }
+        // --- FUNÇÃO ATUALIZADA ---
+        function removeTransaction(id) { 
+            // Remove da lista principal
+            transactions = transactions.filter(t => t.id !== id); 
+            
+            // Se a transação excluída for da caixinha, tira o valor de lá também
+            let dep = goalData.history.find(d => d.id === id);
+            if(dep) {
+                goalData.current -= dep.amount;
+                goalData.history = goalData.history.filter(d => d.id !== id);
+                saveGoal();
+            }
+
+            updateLocalStorage(); 
+            init(); 
+        }
+        
         function updateLocalStorage() { localStorage.setItem('transactions', JSON.stringify(transactions)); }
 
         function init() {
