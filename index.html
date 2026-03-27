@@ -106,10 +106,10 @@
         
         .reminders-wrapper { margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px; }
         .reminders-header { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--orange); display: flex; justify-content: space-between; align-items: center; }
-        .reminders-list { list-style: none; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
+        .reminders-list { list-style: none; max-height: 120px; overflow-y: auto; margin-bottom: 12px; }
         .reminders-list::-webkit-scrollbar { width: 4px; }
         .reminders-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; font-size: 11px; line-height: 1.4; color: #fff;}
+        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; line-height: 1.4; color: #fff;}
         
         .reminder-form { display: flex; gap: 8px; }
         .reminder-form input { padding: 10px; font-size: 12px; flex: 1; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); outline: none; transition: 0.3s; }
@@ -140,7 +140,7 @@
         .goal-history-list li { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); }
         .goal-val { color: var(--green); font-weight: 600; }
 
-        /* --- DÍVIDAS (NOVO PAINEL) --- */
+        /* --- COMPRAS PARCELADAS & DÍVIDAS EMPRESARIAIS --- */
         .debts-wrapper { margin-top: 20px; } 
         
         .company-debt-summary { 
@@ -192,6 +192,10 @@
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .form-row { flex-direction: column; gap: 12px; }
             .company-debt-summary { width: 100%; text-align: center; }
+            
+            /* NOVIDADE: INVERTE A ORDEM NO MOBILE */
+            .left-column { display: flex; flex-direction: column; }
+            .calendar-panel { order: -1; } /* Joga o calendário pro topo */
         }
 
         @keyframes spin { 100% { transform: rotateY(360deg); } }
@@ -288,14 +292,15 @@
 
                 <div class="reminders-wrapper">
                     <div class="reminders-header">
-                        <span>Próximos eventos</span>
-                        </div>
+                        <span>Lembretes do dia</span>
+                        <span id="selected-date-display" style="color: var(--text-color); font-weight: 400;">00/00</span>
+                    </div>
                     
                     <ul class="reminders-list" id="reminders-list">
                         </ul>
 
                     <form class="reminder-form" onsubmit="addReminder(event)">
-                        <input type="text" id="reminder-text" placeholder="Adicionar no dia selecionado..." autocomplete="off" />
+                        <input type="text" id="reminder-text" placeholder="Novo lembrete..." autocomplete="off" />
                         <button type="submit">+</button>
                     </form>
                 </div>
@@ -354,6 +359,12 @@
                 <ul id="list" class="list"></ul>
             </div>
 
+            <div class="glass-panel" style="margin-top: 20px;">
+                <h2 class="section-title" style="margin:0 0 15px 0; color: var(--blue);">💳 Compras Parceladas (Cartões)</h2>
+                <div id="installments-list" class="debts-grid">
+                    </div>
+            </div>
+
             <div class="debts-wrapper glass-panel">
                 <div class="goals-header" style="margin-bottom: 10px;">
                     <h2 class="section-title" style="margin:0; color: var(--orange);">🏢 Gerenciamento de Dívidas (Empresas)</h2>
@@ -396,7 +407,6 @@
         const debtsListUI = document.getElementById('debts-list');
         const totalCompanyDebtUI = document.getElementById('total-company-debt');
 
-        // Configuração Inicial de Data
         try {
             document.getElementById('date').valueAsDate = new Date();
             monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
@@ -410,7 +420,7 @@
         if(typeInput) typeInput.addEventListener('change', updateButtonColor);
         updateButtonColor();
 
-        // --- DADOS (TRANSAÇÕES, CAIXINHA, DÍVIDAS, LEMBRETES) ---
+        // --- DADOS ---
         let transactions = [];
         let companyDebts = [];
         let reminders = [];
@@ -439,7 +449,6 @@
         document.getElementById('goal-name').value = goalData.name;
         document.getElementById('goal-target').value = goalData.target;
         
-        // --- FUNÇÕES DE UPDATE DE LOCAL STORAGE E EXPORT ---
         function updateLocalStorage() { 
             localStorage.setItem('transactions', JSON.stringify(transactions)); 
             localStorage.setItem('companyDebts', JSON.stringify(companyDebts));
@@ -477,7 +486,7 @@
             reader.readAsText(file);
         }
 
-        // --- FUNÇÕES DA CAIXINHA ---
+        // --- CAIXINHA ---
         function saveGoal() {
             goalData.name = document.getElementById('goal-name').value || 'Minha Meta';
             goalData.target = parseFloat(document.getElementById('goal-target').value) || 1;
@@ -490,21 +499,12 @@
             if(addVal && !isNaN(addVal.replace(',','.'))) {
                 let val = parseFloat(addVal.replace(',','.'));
                 goalData.current += val;
-                
                 let tempDate = new Date();
-                let d = String(tempDate.getDate()).padStart(2, '0');
-                let m = String(tempDate.getMonth() + 1).padStart(2, '0');
-                let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
-                
+                let d = String(tempDate.getDate()).padStart(2, '0'); let m = String(tempDate.getMonth() + 1).padStart(2, '0'); let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
                 let syncId = Math.floor(Math.random() * 100000000); 
                 goalData.history.push({ id: syncId, amount: val, date: `${d}/${m}` });
                 saveGoal();
-
-                transactions.push({
-                    id: syncId, text: '🎯 Depósito Caixinha', amount: -val, 
-                    date: formattedDate, category: 'Outros', method: 'Pix/Dinheiro', debt: 'Nenhum'
-                });
-
+                transactions.push({ id: syncId, text: '🎯 Depósito Caixinha', amount: -val, date: formattedDate, category: 'Outros', method: 'Pix/Dinheiro', debt: 'Nenhum' });
                 updateLocalStorage(); init();
             }
         }
@@ -525,7 +525,6 @@
             if(isNaN(pct)) pct = 0; if(pct > 100) pct = 100;
             document.getElementById('goal-bar').style.width = pct + '%';
             document.getElementById('goal-status').innerText = `Guardado: R$ ${goalData.current.toFixed(2).replace('.',',')} / R$ ${goalData.target.toFixed(2).replace('.',',')}`;
-            
             goalHistoryList.innerHTML = '';
             goalData.history.forEach(dep => {
                 const li = document.createElement('li');
@@ -534,29 +533,20 @@
             });
         }
 
-        // --- FUNÇÕES DO CALENDÁRIO ---
+        // --- CALENDÁRIO ---
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
         let navDate = new Date();
         let selDate = new Date();
 
         function renderCalendar() {
-            const year = navDate.getFullYear();
-            const month = navDate.getMonth();
-            
+            const year = navDate.getFullYear(); const month = navDate.getMonth();
             document.getElementById('month-year-display').innerText = `${monthNames[month]} ${year}`;
+            const firstDayIndex = new Date(year, month, 1).getDay(); const lastDay = new Date(year, month + 1, 0).getDate();
+            const daysContainer = document.getElementById('calendar-days'); daysContainer.innerHTML = '';
             
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-            
-            const daysContainer = document.getElementById('calendar-days');
-            daysContainer.innerHTML = '';
-            
-            for (let i = 0; i < firstDayIndex; i++) {
-                daysContainer.innerHTML += `<div class="calendar-day empty"></div>`;
-            }
+            for (let i = 0; i < firstDayIndex; i++) { daysContainer.innerHTML += `<div class="calendar-day empty"></div>`; }
             
             const today = new Date();
-            
             for (let i = 1; i <= lastDay; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
@@ -568,118 +558,126 @@
                 if(isSelected) classes += " selected";
                 
                 let dot = hasEvent ? `<div class="event-dot"></div>` : '';
-                
                 daysContainer.innerHTML += `<div class="${classes}" onclick="selectDate(${year}, ${month}, ${i})">${i}${dot}</div>`;
             }
             renderReminders();
         }
 
-        function changeMonth(dir) {
-            navDate.setMonth(navDate.getMonth() + dir);
-            renderCalendar();
-        }
-
-        function selectDate(year, month, day) {
-            selDate = new Date(year, month, day);
-            renderCalendar();
-        }
+        function changeMonth(dir) { navDate.setMonth(navDate.getMonth() + dir); renderCalendar(); }
+        function selectDate(year, month, day) { selDate = new Date(year, month, day); renderCalendar(); }
 
         function addReminder(e) {
             e.preventDefault();
-            const text = document.getElementById('reminder-text').value;
-            if(!text.trim()) return;
-            
+            const text = document.getElementById('reminder-text').value; if(!text.trim()) return;
             const dateStr = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}-${String(selDate.getDate()).padStart(2, '0')}`;
-            
             reminders.push({ id: Math.floor(Math.random() * 100000000), date: dateStr, text: text });
-            
-            document.getElementById('reminder-text').value = '';
-            updateLocalStorage(); renderCalendar();
+            document.getElementById('reminder-text').value = ''; updateLocalStorage(); renderCalendar();
         }
 
-        function removeReminder(id) {
-            reminders = reminders.filter(r => r.id !== id);
-            updateLocalStorage(); renderCalendar();
-        }
+        function removeReminder(id) { reminders = reminders.filter(r => r.id !== id); updateLocalStorage(); renderCalendar(); }
 
         function renderReminders() {
-            const listUI = document.getElementById('reminders-list');
-            listUI.innerHTML = '';
+            const dateStr = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}-${String(selDate.getDate()).padStart(2, '0')}`;
+            const dayReminders = reminders.filter(r => r.date === dateStr);
+            const listUI = document.getElementById('reminders-list'); listUI.innerHTML = '';
+            document.getElementById('selected-date-display').innerText = `${String(selDate.getDate()).padStart(2, '0')}/${String(selDate.getMonth() + 1).padStart(2, '0')}`;
             
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            if(dayReminders.length === 0) { listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento livre.</li>`; return; }
+            dayReminders.forEach(r => { listUI.innerHTML += `<li class="reminder-item"><span>📌 ${r.text}</span><button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px;">X</button></li>`; });
+        }
 
-            // Filtra apenas eventos que vão acontecer (hoje ou no futuro)
-            let upcomingReminders = reminders.filter(r => {
-                const parts = r.date.split('-'); 
-                const rDate = new Date(parts[0], parts[1] - 1, parts[2]);
-                return rDate >= today;
+        // --- COMPRAS PARCELADAS INTELIGENTES ---
+        function renderInstallments() {
+            const container = document.getElementById('installments-list');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            let groups = {};
+            let today = new Date();
+            // Considera parcelas pendentes aquelas cujo mês é igual ou maior ao atual
+            let currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            transactions.forEach(t => {
+                // Procura transações que terminam em (X/Y)
+                let match = t.text.match(/(.+?)\s*\((\d+)\/(\d+)\)$/);
+                if(match) {
+                    let baseName = match[1].trim();
+                    let currentInst = parseInt(match[2]);
+                    let totalInst = parseInt(match[3]);
+                    
+                    // Se foi marcado dívida para alguem, mostra o nome dela, senão mostra Meu Cartão
+                    let person = t.debt !== 'Nenhum' ? t.debt : 'Meu Cartão';
+                    
+                    // Cria uma chave única para agrupar as parcelas dessa mesma compra
+                    let key = baseName + '_' + person + '_' + totalInst + '_' + Math.abs(t.amount);
+                    
+                    if(!groups[key]) {
+                        groups[key] = { 
+                            name: baseName, 
+                            person: person, 
+                            total: totalInst, 
+                            remaining: 0,
+                            amount: Math.abs(t.amount)
+                        };
+                    }
+                    
+                    // Conta se a data da parcela ainda vai vencer (ou é do mês atual)
+                    if(t.date && t.date.includes('-')) {
+                        let tDateParts = t.date.split('-');
+                        let tDate = new Date(parseInt(tDateParts[0]), parseInt(tDateParts[1]) - 1, parseInt(tDateParts[2]));
+                        
+                        if(tDate >= currentMonthStart) {
+                            groups[key].remaining++;
+                        }
+                    }
+                }
             });
-
-            // Ordena do mais próximo ao mais distante
-            upcomingReminders.sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            if(upcomingReminders.length === 0) {
-                listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento próximo.</li>`;
-                return;
+            let hasActive = false;
+            for(let key in groups) {
+                let g = groups[key];
+                if(g.remaining > 0) {
+                    hasActive = true;
+                    let pct = ((g.total - g.remaining) / g.total) * 100;
+                    
+                    container.innerHTML += `
+                        <div class="debt-card" style="border-color: var(--blue);">
+                            <div class="debt-header">
+                                <span class="debt-company" style="font-size: 14px;">🛒 ${g.name}</span>
+                                <span class="badge" style="background: var(--blue); color: #000; font-weight: bold;">${g.person}</span>
+                            </div>
+                            <div class="debt-details">
+                                <strong>Valor da Parcela:</strong> R$ ${g.amount.toFixed(2).replace('.', ',')}<br>
+                                <strong>Faltam:</strong> ${g.remaining} de ${g.total} parcelas
+                            </div>
+                            <div class="debt-progress-container">
+                                <div class="debt-progress-bar" style="width: ${pct}%; background: var(--blue);"></div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
             
-            upcomingReminders.forEach(r => {
-                const parts = r.date.split('-');
-                const rDate = new Date(parts[0], parts[1] - 1, parts[2]);
-                const diffTime = rDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                let daysText = "";
-                if (diffDays === 0) {
-                    daysText = "Hoje!";
-                } else if (diffDays === 1) {
-                    daysText = "Amanhã";
-                } else {
-                    daysText = `Faltam ${diffDays} dias`;
-                }
-
-                const dateBR = `${parts[2]}/${parts[1]}`;
-
-                listUI.innerHTML += `
-                    <li class="reminder-item">
-                        <div style="display: flex; flex-direction: column; gap: 3px; flex: 1;">
-                            <span>📌 ${r.text}</span>
-                            <span style="font-size: 10px; color: var(--orange); font-weight: 600;">📅 ${dateBR} • ${daysText}</span>
-                        </div>
-                        <button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px; align-self: center;">X</button>
-                    </li>
-                `;
-            });
+            if(!hasActive) {
+                container.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); padding: 10px;">Nenhuma compra parcelada ativa encontrada no momento.</p>';
+            }
         }
 
         // --- DÍVIDAS EMPRESARIAIS ---
         function addCompanyDebt(e) {
             e.preventDefault();
-            const company = document.getElementById('debt-company').value;
-            const total = parseFloat(document.getElementById('debt-total').value);
-            const installments = parseInt(document.getElementById('debt-installments').value);
-
+            const company = document.getElementById('debt-company').value; const total = parseFloat(document.getElementById('debt-total').value); const installments = parseInt(document.getElementById('debt-installments').value);
             companyDebts.push({ id: Math.floor(Math.random() * 100000000), company: company, totalAmount: total, installments: installments, paidInstallments: 0 });
-
             document.getElementById('debt-company').value = ''; document.getElementById('debt-total').value = ''; document.getElementById('debt-installments').value = '';
             updateLocalStorage(); init();
         }
 
         function renderDebts() {
-            debtsListUI.innerHTML = '';
-            let totalRemaining = 0; 
-            
+            debtsListUI.innerHTML = ''; let totalRemaining = 0; 
             companyDebts.forEach(debt => {
-                const installmentValue = debt.totalAmount / debt.installments;
-                const remainingAmount = debt.totalAmount - (installmentValue * debt.paidInstallments);
-                const isFinished = debt.paidInstallments >= debt.installments;
-                const pct = (debt.paidInstallments / debt.installments) * 100;
-
+                const installmentValue = debt.totalAmount / debt.installments; const remainingAmount = debt.totalAmount - (installmentValue * debt.paidInstallments); const isFinished = debt.paidInstallments >= debt.installments; const pct = (debt.paidInstallments / debt.installments) * 100;
                 if (!isFinished) totalRemaining += remainingAmount;
-
-                const card = document.createElement('div');
-                card.className = `debt-card ${isFinished ? 'finished' : ''}`;
+                const card = document.createElement('div'); card.className = `debt-card ${isFinished ? 'finished' : ''}`;
                 card.innerHTML = `
                     <div class="debt-header"><span class="debt-company">🏢 ${debt.company}</span><button class="delete-btn" onclick="deleteCompanyDebt(${debt.id})">X</button></div>
                     <div class="debt-details"><strong>Total:</strong> R$ ${debt.totalAmount.toFixed(2).replace('.', ',')}<br><strong>Restante:</strong> R$ ${remainingAmount.toFixed(2).replace('.', ',')}<br><strong>Valor da Parcela:</strong> R$ ${installmentValue.toFixed(2).replace('.', ',')}</div>
@@ -697,8 +695,7 @@
                 let debt = companyDebts.find(d => d.id === id);
                 if(debt) {
                     debt.paidInstallments += 1;
-                    let tempDate = new Date();
-                    let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                    let tempDate = new Date(); let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
                     transactions.push({ id: Math.floor(Math.random() * 100000000), text: `Pagamento: ${company} (${debt.paidInstallments}/${debt.installments})`, amount: -value, date: formattedDate, category: 'Casa', method: 'Pix/Dinheiro', debt: 'Nenhum' });
                     updateLocalStorage(); init();
                 }
@@ -706,54 +703,29 @@
         }
 
         function deleteCompanyDebt(id) {
-            if(confirm("Tem certeza que deseja apagar este registro de dívida? (Isso não apaga os pagamentos já feitos no histórico)")) {
-                companyDebts = companyDebts.filter(d => d.id !== id);
-                updateLocalStorage(); init();
-            }
+            if(confirm("Tem certeza que deseja apagar este registro de dívida? (Isso não apaga os pagamentos já feitos no histórico)")) { companyDebts = companyDebts.filter(d => d.id !== id); updateLocalStorage(); init(); }
         }
 
         // --- TRANSAÇÕES PRINCIPAIS ---
         function animateCoinAndSave(transactionDataArr) {
-            const wrapper = document.createElement('div'); wrapper.className = 'coin-wrapper';
-            const coin = document.createElement('div'); coin.className = 'coin-anim'; wrapper.appendChild(coin);
-            
-            const btnRect = submitBtn.getBoundingClientRect();
-            wrapper.style.left = (btnRect.left + btnRect.width/2 - 10) + 'px';
-            wrapper.style.top = (btnRect.top + btnRect.height/2 - 10) + 'px';
-            document.body.appendChild(wrapper);
-
-            const listRect = list.getBoundingClientRect();
-            const destX = listRect.left + 30; const destY = listRect.top > 0 ? listRect.top + 20 : window.innerHeight / 2;
-
-            setTimeout(() => {
-                wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s';
-                wrapper.style.transform = `translate(${destX - parseFloat(wrapper.style.left)}px, ${destY - parseFloat(wrapper.style.top)}px) scale(0.5)`;
-                wrapper.style.opacity = '0.2';
-            }, 10);
-
+            const wrapper = document.createElement('div'); wrapper.className = 'coin-wrapper'; const coin = document.createElement('div'); coin.className = 'coin-anim'; wrapper.appendChild(coin);
+            const btnRect = submitBtn.getBoundingClientRect(); wrapper.style.left = (btnRect.left + btnRect.width/2 - 10) + 'px'; wrapper.style.top = (btnRect.top + btnRect.height/2 - 10) + 'px'; document.body.appendChild(wrapper);
+            const listRect = list.getBoundingClientRect(); const destX = listRect.left + 30; const destY = listRect.top > 0 ? listRect.top + 20 : window.innerHeight / 2;
+            setTimeout(() => { wrapper.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s'; wrapper.style.transform = `translate(${destX - parseFloat(wrapper.style.left)}px, ${destY - parseFloat(wrapper.style.top)}px) scale(0.5)`; wrapper.style.opacity = '0.2'; }, 10);
             setTimeout(() => { wrapper.remove(); transactions.push(...transactionDataArr); updateLocalStorage(); init(); }, 510);
         }
 
         function addTransaction(e) {
             e.preventDefault();
-            let totalAmount = parseFloat(amountInput.value);
-            let numInstallments = parseInt(document.getElementById('installments').value);
-            totalAmount = typeInput.value === 'minus' ? -Math.abs(totalAmount) : Math.abs(totalAmount);
-            let installmentAmount = totalAmount / numInstallments;
-            
-            let dateParts = document.getElementById('date').value.split('-');
-            let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]);
-
+            let totalAmount = parseFloat(amountInput.value); let numInstallments = parseInt(document.getElementById('installments').value); totalAmount = typeInput.value === 'minus' ? -Math.abs(totalAmount) : Math.abs(totalAmount); let installmentAmount = totalAmount / numInstallments;
+            let dateParts = document.getElementById('date').value.split('-'); let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]);
             let newTransactions = [];
             for(let i = 0; i < numInstallments; i++) {
-                let tempDate = new Date(year, month + i, day);
-                let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
+                let tempDate = new Date(year, month + i, day); let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
                 let textSuffix = numInstallments > 1 ? ` (${i+1}/${numInstallments})` : '';
-
                 newTransactions.push({ id: Math.floor(Math.random() * 100000000), text: textInput.value + textSuffix, amount: installmentAmount, date: formattedDate, category: categoryInput.value || 'Outros', method: document.getElementById('payment-method').value, debt: document.getElementById('debt-to').value });
             }
             animateCoinAndSave(newTransactions);
-            
             textInput.value = ''; amountInput.value = ''; document.getElementById('installments').value = '1'; categoryInput.value = '';
         }
 
@@ -763,14 +735,10 @@
         }
 
         function addTransactionDOM(transaction) {
-            const sign = transaction.amount < 0 ? '-' : '+';
-            const item = document.createElement('li');
-            item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
-            
+            const sign = transaction.amount < 0 ? '-' : '+'; const item = document.createElement('li'); item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
             let debtBadge = transaction.debt !== 'Nenhum' ? `<span class="badge" style="color:var(--orange);border-color:var(--orange)">Dívida: ${transaction.debt}</span>` : '';
             let dateBR = "Sem data"; if(transaction.date && transaction.date.includes('-')) { dateBR = transaction.date.split('-').reverse().join('/'); }
             let catIcon = getCategoryIcon(transaction.category);
-
             item.innerHTML = `
                 <div class="item-info"><span class="item-title">${catIcon} ${transaction.text}</span><span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span></div>
                 <div class="item-actions"><span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span><button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button></div>
@@ -779,22 +747,16 @@
         }
 
         function updateValues(filtered) {
-            const amounts = filtered.map(t => parseFloat(t.amount) || 0);
-            const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
-            const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2);
-            const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
+            const amounts = filtered.map(t => parseFloat(t.amount) || 0); const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
+            const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2); const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             const oldDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
             
-            balance.innerText = `R$ ${total.replace('.', ',')}`;
-            money_plus.innerText = `+ R$ ${income.replace('.', ',')}`;
-            money_minus.innerText = `- R$ ${expense.replace('.', ',')}`;
-            money_debt.innerText = `R$ ${oldDebt.toFixed(2).replace('.', ',')}`;
+            balance.innerText = `R$ ${total.replace('.', ',')}`; money_plus.innerText = `+ R$ ${income.replace('.', ',')}`; money_minus.innerText = `- R$ ${expense.replace('.', ',')}`; money_debt.innerText = `R$ ${oldDebt.toFixed(2).replace('.', ',')}`;
         }
 
         function removeTransaction(id) { 
             transactions = transactions.filter(t => t.id !== id); 
-            let dep = goalData.history.find(d => d.id === id);
-            if(dep) { goalData.current -= dep.amount; goalData.history = goalData.history.filter(d => d.id !== id); saveGoal(); }
+            let dep = goalData.history.find(d => d.id === id); if(dep) { goalData.current -= dep.amount; goalData.history = goalData.history.filter(d => d.id !== id); saveGoal(); }
             updateLocalStorage(); init(); 
         }
 
@@ -810,6 +772,7 @@
                 updateGoalUI();
                 renderDebts();
                 renderCalendar();
+                renderInstallments(); // Chama a nova função de parcelas
             } catch(e) {}
         }
 
