@@ -14,7 +14,7 @@
             --green: #00e676;
             --red: #ff5252;
             --blue: #03dac6;
-            --orange: #ff9800;
+            --orange: #ff9800; /* Amarelo/Laranja do tema */
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
@@ -193,7 +193,6 @@
             .form-row { flex-direction: column; gap: 12px; }
             .company-debt-summary { width: 100%; text-align: center; }
             
-            /* NOVIDADE: INVERTE A ORDEM NO MOBILE */
             .left-column { display: flex; flex-direction: column; }
             .calendar-panel { order: -1; } /* Joga o calendário pro topo */
         }
@@ -360,7 +359,7 @@
             </div>
 
             <div class="glass-panel" style="margin-top: 20px;">
-                <h2 class="section-title" style="margin:0 0 15px 0; color: var(--blue);">💳 Compras Parceladas (Cartões)</h2>
+                <h2 class="section-title" style="margin:0 0 15px 0; color: var(--orange);">💳 Compras Parceladas (Cartões)</h2>
                 <div id="installments-list" class="debts-grid">
                     </div>
             </div>
@@ -586,7 +585,7 @@
             dayReminders.forEach(r => { listUI.innerHTML += `<li class="reminder-item"><span>📌 ${r.text}</span><button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px;">X</button></li>`; });
         }
 
-        // --- COMPRAS PARCELADAS INTELIGENTES ---
+        // --- COMPRAS PARCELADAS INTELIGENTES (AGORA EM AMARELO) ---
         function renderInstallments() {
             const container = document.getElementById('installments-list');
             if(!container) return;
@@ -594,21 +593,16 @@
             
             let groups = {};
             let today = new Date();
-            // Considera parcelas pendentes aquelas cujo mês é igual ou maior ao atual
             let currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
             
             transactions.forEach(t => {
-                // Procura transações que terminam em (X/Y)
                 let match = t.text.match(/(.+?)\s*\((\d+)\/(\d+)\)$/);
                 if(match) {
                     let baseName = match[1].trim();
                     let currentInst = parseInt(match[2]);
                     let totalInst = parseInt(match[3]);
                     
-                    // Se foi marcado dívida para alguem, mostra o nome dela, senão mostra Meu Cartão
                     let person = t.debt !== 'Nenhum' ? t.debt : 'Meu Cartão';
-                    
-                    // Cria uma chave única para agrupar as parcelas dessa mesma compra
                     let key = baseName + '_' + person + '_' + totalInst + '_' + Math.abs(t.amount);
                     
                     if(!groups[key]) {
@@ -621,7 +615,6 @@
                         };
                     }
                     
-                    // Conta se a data da parcela ainda vai vencer (ou é do mês atual)
                     if(t.date && t.date.includes('-')) {
                         let tDateParts = t.date.split('-');
                         let tDate = new Date(parseInt(tDateParts[0]), parseInt(tDateParts[1]) - 1, parseInt(tDateParts[2]));
@@ -641,17 +634,17 @@
                     let pct = ((g.total - g.remaining) / g.total) * 100;
                     
                     container.innerHTML += `
-                        <div class="debt-card" style="border-color: var(--blue);">
+                        <div class="debt-card" style="border-color: var(--orange);">
                             <div class="debt-header">
                                 <span class="debt-company" style="font-size: 14px;">🛒 ${g.name}</span>
-                                <span class="badge" style="background: var(--blue); color: #000; font-weight: bold;">${g.person}</span>
+                                <span class="badge" style="background: var(--orange); color: #000; font-weight: bold;">${g.person}</span>
                             </div>
                             <div class="debt-details">
                                 <strong>Valor da Parcela:</strong> R$ ${g.amount.toFixed(2).replace('.', ',')}<br>
                                 <strong>Faltam:</strong> ${g.remaining} de ${g.total} parcelas
                             </div>
                             <div class="debt-progress-container">
-                                <div class="debt-progress-bar" style="width: ${pct}%; background: var(--blue);"></div>
+                                <div class="debt-progress-bar" style="width: ${pct}%; background: var(--orange);"></div>
                             </div>
                         </div>
                     `;
@@ -743,7 +736,8 @@
                 <div class="item-info"><span class="item-title">${catIcon} ${transaction.text}</span><span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span></div>
                 <div class="item-actions"><span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span><button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button></div>
             `;
-            list.appendChild(item);
+            // NOVIDADE: prepend() adiciona no topo da lista, empurrando as antigas para baixo
+            list.prepend(item);
         }
 
         function updateValues(filtered) {
@@ -765,14 +759,18 @@
                 list.innerHTML = '';
                 const selMonth = monthFilter.value;
                 const filtered = selMonth === 'all' ? transactions : transactions.filter(t => { if(!t || !t.date || !t.date.includes('-')) return false; return t.date.split('-')[1] === selMonth; });
+                
+                // NOVIDADE: Ordenando da data mais antiga para a mais nova ANTES de jogar na DOM. 
+                // Como agora o DOM usa 'prepend', a mais nova vai ficar no topo.
                 filtered.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+                
                 filtered.forEach(addTransactionDOM);
                 
                 updateValues(filtered);
                 updateGoalUI();
                 renderDebts();
                 renderCalendar();
-                renderInstallments(); // Chama a nova função de parcelas
+                renderInstallments(); 
             } catch(e) {}
         }
 
