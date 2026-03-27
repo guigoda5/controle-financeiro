@@ -14,7 +14,7 @@
             --green: #00e676;
             --red: #ff5252;
             --blue: #03dac6;
-            --orange: #ff9800; /* Amarelo/Laranja do tema */
+            --orange: #ff9800;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
@@ -106,10 +106,10 @@
         
         .reminders-wrapper { margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px; }
         .reminders-header { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--orange); display: flex; justify-content: space-between; align-items: center; }
-        .reminders-list { list-style: none; max-height: 120px; overflow-y: auto; margin-bottom: 12px; }
+        .reminders-list { list-style: none; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
         .reminders-list::-webkit-scrollbar { width: 4px; }
         .reminders-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; line-height: 1.4; color: #fff;}
+        .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; margin-bottom: 6px; display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: #fff;}
         
         .reminder-form { display: flex; gap: 8px; }
         .reminder-form input { padding: 10px; font-size: 12px; flex: 1; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-color); outline: none; transition: 0.3s; }
@@ -194,7 +194,7 @@
             .company-debt-summary { width: 100%; text-align: center; }
             
             .left-column { display: flex; flex-direction: column; }
-            .calendar-panel { order: -1; } /* Joga o calendário pro topo */
+            .calendar-panel { order: -1; } 
         }
 
         @keyframes spin { 100% { transform: rotateY(360deg); } }
@@ -291,15 +291,14 @@
 
                 <div class="reminders-wrapper">
                     <div class="reminders-header">
-                        <span>Lembretes do dia</span>
-                        <span id="selected-date-display" style="color: var(--text-color); font-weight: 400;">00/00</span>
+                        <span>Lembretes e Eventos</span>
                     </div>
                     
                     <ul class="reminders-list" id="reminders-list">
                         </ul>
 
                     <form class="reminder-form" onsubmit="addReminder(event)">
-                        <input type="text" id="reminder-text" placeholder="Novo lembrete..." autocomplete="off" />
+                        <input type="text" id="reminder-text" placeholder="Adicionar em..." autocomplete="off" />
                         <button type="submit">+</button>
                     </form>
                 </div>
@@ -532,7 +531,7 @@
             });
         }
 
-        // --- CALENDÁRIO ---
+        // --- CALENDÁRIO & LEMBRETES INTELIGENTES ---
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
         let navDate = new Date();
         let selDate = new Date();
@@ -559,6 +558,10 @@
                 let dot = hasEvent ? `<div class="event-dot"></div>` : '';
                 daysContainer.innerHTML += `<div class="${classes}" onclick="selectDate(${year}, ${month}, ${i})">${i}${dot}</div>`;
             }
+            
+            // Atualiza placeholder da caixa de texto para mostrar o dia escolhido
+            document.getElementById('reminder-text').placeholder = `Adicionar em ${String(selDate.getDate()).padStart(2, '0')}/${String(selDate.getMonth() + 1).padStart(2, '0')}...`;
+            
             renderReminders();
         }
 
@@ -576,16 +579,62 @@
         function removeReminder(id) { reminders = reminders.filter(r => r.id !== id); updateLocalStorage(); renderCalendar(); }
 
         function renderReminders() {
-            const dateStr = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}-${String(selDate.getDate()).padStart(2, '0')}`;
-            const dayReminders = reminders.filter(r => r.date === dateStr);
-            const listUI = document.getElementById('reminders-list'); listUI.innerHTML = '';
-            document.getElementById('selected-date-display').innerText = `${String(selDate.getDate()).padStart(2, '0')}/${String(selDate.getMonth() + 1).padStart(2, '0')}`;
+            const listUI = document.getElementById('reminders-list'); 
+            listUI.innerHTML = '';
             
-            if(dayReminders.length === 0) { listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento livre.</li>`; return; }
-            dayReminders.forEach(r => { listUI.innerHTML += `<li class="reminder-item"><span>📌 ${r.text}</span><button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0; margin-left: 8px;">X</button></li>`; });
+            if(reminders.length === 0) { 
+                listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento agendado.</li>`; 
+                return; 
+            }
+
+            // Ordena do mais antigo/próximo para o mais distante
+            let sortedReminders = [...reminders].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            sortedReminders.forEach(r => { 
+                let rDateParts = r.date.split('-');
+                let rDate = new Date(parseInt(rDateParts[0]), parseInt(rDateParts[1]) - 1, parseInt(rDateParts[2]));
+                rDate.setHours(0, 0, 0, 0);
+
+                let diffTime = rDate.getTime() - today.getTime();
+                let diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
+                let daysText = "";
+                let colorText = "var(--text-muted)";
+                
+                if(diffDays === 0) {
+                    daysText = "Hoje";
+                    colorText = "var(--green)";
+                } else if (diffDays === 1) {
+                    daysText = "Amanhã";
+                    colorText = "var(--blue)";
+                } else if (diffDays > 1) {
+                    daysText = `Faltam ${diffDays} dias`;
+                } else {
+                    daysText = `Passou há ${Math.abs(diffDays)} dias`;
+                    colorText = "var(--red)";
+                }
+
+                let formattedDate = `${String(rDate.getDate()).padStart(2, '0')}/${String(rDate.getMonth() + 1).padStart(2, '0')}/${rDate.getFullYear()}`;
+
+                listUI.innerHTML += `
+                    <li class="reminder-item" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                            <span style="font-weight: 600; font-size: 12px;">📌 ${r.text}</span>
+                            <button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0;">X</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; width: 100%; font-size: 10px; color: ${colorText};">
+                            <span>📅 ${formattedDate}</span>
+                            <span style="font-weight: bold;">${daysText}</span>
+                        </div>
+                    </li>
+                `; 
+            });
         }
 
-        // --- COMPRAS PARCELADAS INTELIGENTES (AGORA EM AMARELO) ---
+        // --- COMPRAS PARCELADAS INTELIGENTES ---
         function renderInstallments() {
             const container = document.getElementById('installments-list');
             if(!container) return;
@@ -736,7 +785,6 @@
                 <div class="item-info"><span class="item-title">${catIcon} ${transaction.text}</span><span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span></div>
                 <div class="item-actions"><span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span><button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button></div>
             `;
-            // NOVIDADE: prepend() adiciona no topo da lista, empurrando as antigas para baixo
             list.prepend(item);
         }
 
@@ -760,8 +808,6 @@
                 const selMonth = monthFilter.value;
                 const filtered = selMonth === 'all' ? transactions : transactions.filter(t => { if(!t || !t.date || !t.date.includes('-')) return false; return t.date.split('-')[1] === selMonth; });
                 
-                // NOVIDADE: Ordenando da data mais antiga para a mais nova ANTES de jogar na DOM. 
-                // Como agora o DOM usa 'prepend', a mais nova vai ficar no topo.
                 filtered.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
                 
                 filtered.forEach(addTransactionDOM);
