@@ -30,7 +30,8 @@
         /* --- CABEÇALHO E TOP NAV --- */
         .top-nav { 
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 30px; flex-wrap: wrap; gap: 15px; position: relative; z-index: 1000; 
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px; position: relative; z-index: 1000; 
+            max-width: 1200px; margin-left: auto; margin-right: auto;
         }
         .header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
         .main-title { 
@@ -46,10 +47,6 @@
         }
         .btn-small:hover { background: rgba(255,255,255,0.1); border-color: var(--blue); }
 
-        /* --- LAYOUT PRINCIPAL --- */
-        .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; align-items: start; }
-        .left-column { display: flex; flex-direction: column; gap: 20px; }
-
         .glass-panel { 
             background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%); 
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
@@ -60,27 +57,60 @@
 
         h2.section-title { font-size: 18px; margin-bottom: 20px; font-weight: 600; color: var(--blue); }
         
-        /* --- FORMULÁRIO E GAVETAS --- */
-        form { display: flex; flex-direction: column; gap: 12px; }
-        
-        form input { 
-            width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
-            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
+        /* --- MODAL POP-UP DE PENDÊNCIAS --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .modal-box { width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--red); box-shadow: 0 0 30px rgba(255, 82, 82, 0.3); }
+        .modal-box h3 { color: var(--red); margin-bottom: 15px; font-size: 20px; }
+        .modal-box p { font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .btn-modal { padding: 10px 20px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; flex: 1; }
+        .btn-ok { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--glass-border); }
+        .btn-ok:hover { background: rgba(255,255,255,0.2); }
+        .btn-postpone { background: var(--orange); color: #000; }
+        .btn-postpone:hover { transform: scale(0.95); }
+
+        /* --- PENDÊNCIAS (TOPO) --- */
+        .pendencies-wrapper { max-width: 1200px; margin: 0 auto 20px auto; border-left: 4px solid var(--red); }
+        .pend-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .pend-form input, .pend-form select { 
+            padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); 
+            color: var(--text-color); font-size: 13px; outline: none; flex: 1; min-width: 150px;
             -webkit-appearance: none; 
         }
-
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
-        input[type="number"] { -moz-appearance: textfield; }
+        .pend-form select { cursor: pointer; }
+        .pend-form button { background: var(--red); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .pend-form button:hover { transform: scale(0.95); }
         
+        .pend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .pend-card { background: rgba(0,0,0,0.3); border-left: 4px solid var(--glass-border); border-radius: 12px; padding: 15px; position: relative; display: flex; flex-direction: column; gap: 8px;}
+        .pend-card.high { border-left-color: var(--red); }
+        .pend-card.medium { border-left-color: var(--orange); }
+        .pend-card.low { border-left-color: var(--green); }
+        .pend-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .pend-title { font-weight: 600; font-size: 14px; }
+        .pend-date { font-size: 11px; color: var(--text-muted); }
+        .pend-days { font-size: 11px; font-weight: bold; }
+        
+        /* --- LAYOUT PRINCIPAL --- */
+        .layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; position: relative; align-items: start; }
+        .left-column { display: flex; flex-direction: column; gap: 20px; }
+
+        /* --- FORMULÁRIO E GAVETAS --- */
+        form { display: flex; flex-direction: column; gap: 12px; }
+        form input { 
+            width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); 
+            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; -webkit-appearance: none; 
+        }
+        input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
         form select { 
             width: 100%; padding: 14px 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); 
-            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; 
-            cursor: pointer;
+            border-radius: 10px; color: var(--text-color); font-size: 14px; outline: none; transition: 0.3s; cursor: pointer;
         }
-        
         select option { background: #1a1c2c; color: #fff; padding: 10px; }
         form input:focus, form select:focus { border-color: var(--blue); background: rgba(0,0,0,0.6); }
         
@@ -106,9 +136,9 @@
         
         .reminders-wrapper { margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px; }
         .reminders-header { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--orange); display: flex; justify-content: space-between; align-items: center; }
-        .reminders-list { list-style: none; max-height: 180px; overflow-y: auto; margin-bottom: 12px; }
-        .reminders-list::-webkit-scrollbar { width: 4px; }
-        .reminders-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        
+        /* NOVIDADE: Removido o max-height e overflow para deixar a lista expandir */
+        .reminders-list { list-style: none; margin-bottom: 12px; }
         .reminder-item { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 10px; border-radius: 8px; margin-bottom: 6px; display: flex; flex-direction: column; gap: 6px; font-size: 11px; line-height: 1.4; color: #fff;}
         
         .reminder-form { display: flex; gap: 8px; }
@@ -146,8 +176,7 @@
         .company-debt-summary { 
             background: rgba(0,0,0,0.3); border: 1px solid var(--orange); 
             border-radius: 15px; padding: 15px 20px; margin-bottom: 20px;
-            display: inline-block; 
-            border-left: 4px solid var(--orange);
+            display: inline-block; border-left: 4px solid var(--orange);
         }
         .company-debt-summary h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .company-debt-summary h2 { font-size: 20px; font-weight: 600; margin: 0; color: var(--orange); }
@@ -182,27 +211,31 @@
         .coin-wrapper { position: fixed; z-index: 9999; pointer-events: none; }
         .coin-anim { width: 20px; height: 20px; background: radial-gradient(circle, #ffd700, #b8860b); border-radius: 50%; border: 2px solid #fff9c4; animation: spin 0.4s linear infinite; }
 
-        /* Ajustes Mobile */
         @media (max-width: 900px) {
             body { padding: 15px 10px; }
-            .top-nav { flex-direction: column; justify-content: center; text-align: center; }
-            .header-left { flex-direction: column; gap: 10px; justify-content: center; }
             .layout { grid-template-columns: 1fr; gap: 20px; }
             .glass-panel { padding: 18px; }
             .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
             .form-row { flex-direction: column; gap: 12px; }
-            .company-debt-summary { width: 100%; text-align: center; }
-            
             .left-column { display: flex; flex-direction: column; }
             .calendar-panel { order: -1; } 
         }
-
         @keyframes spin { 100% { transform: rotateY(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     </style>
 </head>
 <body>
+
+    <div id="alert-modal" class="modal-overlay">
+        <div class="modal-box glass-panel">
+            <h3>⚠️ Atenção!</h3>
+            <p id="alert-text">Você tem uma pendência que vence em 2 dias!</p>
+            <div class="modal-actions">
+                <button class="btn-modal btn-ok" onclick="closeAlert()">Ciente</button>
+                <button class="btn-modal btn-postpone" id="btn-postpone" onclick="postponeAlert()">Adiar 1 Dia</button>
+            </div>
+        </div>
+    </div>
 
     <header class="top-nav">
         <div class="header-left">
@@ -214,6 +247,24 @@
             </div>
         </div>
     </header>
+
+    <div class="pendencies-wrapper glass-panel">
+        <h2 class="section-title" style="color: var(--red); margin-bottom: 15px;">📌 Pendências Ativas</h2>
+        
+        <form class="pend-form" onsubmit="addPendency(event)">
+            <input type="text" id="pend-title" placeholder="Descreva a pendência..." required />
+            <input type="date" id="pend-date" required />
+            <select id="pend-priority" required>
+                <option value="high" style="color: var(--red);">Alta Relevância (Vermelho)</option>
+                <option value="medium" style="color: var(--orange);">Relevância Média (Amarelo)</option>
+                <option value="low" style="color: var(--green);">Baixa Relevância (Verde)</option>
+            </select>
+            <button type="submit">Adicionar Pendência</button>
+        </form>
+
+        <div class="pend-grid" id="pendencies-list">
+            </div>
+    </div>
 
     <div class="layout">
         
@@ -286,8 +337,7 @@
                     <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
                 </div>
                 
-                <div class="calendar-days" id="calendar-days">
-                    </div>
+                <div class="calendar-days" id="calendar-days"></div>
 
                 <div class="reminders-wrapper">
                     <div class="reminders-header">
@@ -359,8 +409,7 @@
 
             <div class="glass-panel" style="margin-top: 20px;">
                 <h2 class="section-title" style="margin:0 0 15px 0; color: var(--orange);">💳 Compras Parceladas (Cartões)</h2>
-                <div id="installments-list" class="debts-grid">
-                    </div>
+                <div id="installments-list" class="debts-grid"></div>
             </div>
 
             <div class="debts-wrapper glass-panel">
@@ -382,8 +431,7 @@
                     </div>
                 </form>
 
-                <div id="debts-list" class="debts-grid">
-                    </div>
+                <div id="debts-list" class="debts-grid"></div>
             </div>
 
         </div> </div> <script>
@@ -407,6 +455,7 @@
 
         try {
             document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('pend-date').valueAsDate = new Date();
             monthFilter.value = String(new Date().getMonth() + 1).padStart(2, '0');
         } catch(e) {}
 
@@ -422,25 +471,27 @@
         let transactions = [];
         let companyDebts = [];
         let reminders = [];
+        let pendencies = [];
         let goalData = { name: 'Reserva: Upgrade Positivo SIM+', target: 3500, current: 0, history: [] };
+
+        let alertQueue = []; // Fila para pop-ups de pendências
+        let activeAlertId = null;
 
         try {
             const savedData = localStorage.getItem('transactions');
             if (savedData) { transactions = JSON.parse(savedData); if (!Array.isArray(transactions)) transactions = []; }
-            
             const savedDebts = localStorage.getItem('companyDebts');
             if(savedDebts) { companyDebts = JSON.parse(savedDebts); if(!Array.isArray(companyDebts)) companyDebts = []; }
-            
             const savedReminders = localStorage.getItem('reminders');
             if(savedReminders) { reminders = JSON.parse(savedReminders); if(!Array.isArray(reminders)) reminders = []; }
-
+            const savedPendencies = localStorage.getItem('pendencies');
+            if(savedPendencies) { pendencies = JSON.parse(savedPendencies); if(!Array.isArray(pendencies)) pendencies = []; }
+            
             const savedGoal = localStorage.getItem('myGoal');
             if (savedGoal) {
                 const parsed = JSON.parse(savedGoal);
-                goalData.name = parsed.name || 'Reserva: Upgrade Positivo SIM+';
-                goalData.target = parseFloat(parsed.target) || 3500;
-                goalData.current = parseFloat(parsed.current) || 0;
-                goalData.history = Array.isArray(parsed.history) ? parsed.history : [];
+                goalData.name = parsed.name || 'Reserva: Upgrade Positivo SIM+'; goalData.target = parseFloat(parsed.target) || 3500;
+                goalData.current = parseFloat(parsed.current) || 0; goalData.history = Array.isArray(parsed.history) ? parsed.history : [];
             }
         } catch (error) {}
         
@@ -451,19 +502,18 @@
             localStorage.setItem('transactions', JSON.stringify(transactions)); 
             localStorage.setItem('companyDebts', JSON.stringify(companyDebts));
             localStorage.setItem('reminders', JSON.stringify(reminders));
+            localStorage.setItem('pendencies', JSON.stringify(pendencies));
         }
 
         function exportData() {
-            const dataStr = JSON.stringify({ transactions, goalData, companyDebts, reminders });
+            const dataStr = JSON.stringify({ transactions, goalData, companyDebts, reminders, pendencies });
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url; link.download = 'backup_financas_guigo.json'; link.click();
+            const link = document.createElement('a'); link.href = url; link.download = 'backup_financas_guigo.json'; link.click();
         }
 
         function importData(event) {
-            const file = event.target.files[0];
-            if(!file) return;
+            const file = event.target.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -471,37 +521,149 @@
                     if(imported.transactions) transactions = imported.transactions;
                     if(imported.companyDebts) companyDebts = imported.companyDebts;
                     if(imported.reminders) reminders = imported.reminders;
+                    if(imported.pendencies) pendencies = imported.pendencies;
                     if(imported.goalData) {
-                        goalData = imported.goalData;
-                        if(!goalData.history) goalData.history = [];
-                        document.getElementById('goal-name').value = goalData.name;
-                        document.getElementById('goal-target').value = goalData.target;
+                        goalData = imported.goalData; if(!goalData.history) goalData.history = [];
+                        document.getElementById('goal-name').value = goalData.name; document.getElementById('goal-target').value = goalData.target;
                     }
-                    updateLocalStorage(); saveGoal(); init();
-                    alert("Backup restaurado com sucesso!");
+                    updateLocalStorage(); saveGoal(); init(); alert("Backup restaurado com sucesso!");
                 } catch(err) { alert("Erro ao ler o arquivo de backup."); }
             };
             reader.readAsText(file);
         }
 
+        // --- PENDÊNCIAS & POP-UP DE ALERTA ---
+        function addPendency(e) {
+            e.preventDefault();
+            const title = document.getElementById('pend-title').value;
+            const date = document.getElementById('pend-date').value;
+            const priority = document.getElementById('pend-priority').value;
+
+            pendencies.push({ id: Math.floor(Math.random() * 100000000), title, date, priority, alertedOn: null });
+            document.getElementById('pend-title').value = '';
+            
+            updateLocalStorage(); renderPendencies(); checkAlerts();
+        }
+
+        function removePendency(id) {
+            pendencies = pendencies.filter(p => p.id !== id);
+            updateLocalStorage(); renderPendencies();
+        }
+
+        function renderPendencies() {
+            const container = document.getElementById('pendencies-list'); container.innerHTML = '';
+            
+            let today = new Date(); today.setHours(0, 0, 0, 0);
+
+            // Ordenar da mais urgente para a mais futura
+            let sortedPendencies = [...pendencies].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sortedPendencies.forEach(p => {
+                let pDateParts = p.date.split('-');
+                let pDate = new Date(parseInt(pDateParts[0]), parseInt(pDateParts[1]) - 1, parseInt(pDateParts[2]));
+                pDate.setHours(0, 0, 0, 0);
+
+                let diffTime = pDate.getTime() - today.getTime();
+                let diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
+                let daysText = ""; let colorText = "var(--text-muted)";
+                
+                if(diffDays === 0) { daysText = "Vence Hoje!"; colorText = "var(--red)"; } 
+                else if (diffDays === 1) { daysText = "Vence Amanhã"; colorText = "var(--orange)"; } 
+                else if (diffDays > 1) { daysText = `Faltam ${diffDays} dias`; } 
+                else { daysText = `Atrasado há ${Math.abs(diffDays)} dias`; colorText = "var(--red)"; }
+
+                let formattedDate = `${String(pDate.getDate()).padStart(2, '0')}/${String(pDate.getMonth() + 1).padStart(2, '0')}/${pDate.getFullYear()}`;
+
+                container.innerHTML += `
+                    <div class="pend-card ${p.priority}">
+                        <div class="pend-header">
+                            <span class="pend-title">${p.title}</span>
+                            <button class="delete-btn" onclick="removePendency(${p.id})" style="width: 24px; height: 24px;">✔</button>
+                        </div>
+                        <div style="display:flex; justify-content: space-between; margin-top: 10px;">
+                            <span class="pend-date">Prazo: ${formattedDate}</span>
+                            <span class="pend-days" style="color: ${colorText}">${daysText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function checkAlerts() {
+            let today = new Date(); today.setHours(0,0,0,0);
+            let todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+            
+            alertQueue = pendencies.filter(p => {
+                if(p.alertedOn === todayStr) return false; // Já alertou hoje
+                let pDateParts = p.date.split('-');
+                let pDate = new Date(parseInt(pDateParts[0]), parseInt(pDateParts[1]) - 1, parseInt(pDateParts[2]));
+                pDate.setHours(0,0,0,0);
+                
+                let diffDays = Math.round((pDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                return diffDays === 2; // Só avisa exatos 2 dias antes
+            });
+
+            if(alertQueue.length > 0) showNextAlert();
+        }
+
+        function showNextAlert() {
+            if(alertQueue.length === 0) { document.getElementById('alert-modal').style.display = 'none'; return; }
+            
+            let p = alertQueue[0];
+            activeAlertId = p.id;
+            
+            let pDateParts = p.date.split('-');
+            let formattedDate = `${pDateParts[2]}/${pDateParts[1]}/${pDateParts[0]}`;
+            
+            document.getElementById('alert-text').innerHTML = `A pendência <strong>"${p.title}"</strong> vence em 2 dias (${formattedDate}).<br>O que deseja fazer?`;
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
+
+        function closeAlert() {
+            let p = pendencies.find(x => x.id === activeAlertId);
+            if(p) {
+                let today = new Date();
+                p.alertedOn = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+                updateLocalStorage();
+            }
+            alertQueue.shift(); // Remove da fila
+            showNextAlert();
+        }
+
+        function postponeAlert() {
+            let p = pendencies.find(x => x.id === activeAlertId);
+            if(p) {
+                let pDateParts = p.date.split('-');
+                let pDate = new Date(parseInt(pDateParts[0]), parseInt(pDateParts[1]) - 1, parseInt(pDateParts[2]));
+                pDate.setDate(pDate.getDate() + 1); // Adiciona 1 dia
+                
+                p.date = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}-${String(pDate.getDate()).padStart(2, '0')}`;
+                
+                let today = new Date();
+                p.alertedOn = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`; // Marca como alertado hoje
+                updateLocalStorage();
+                renderPendencies();
+            }
+            alertQueue.shift();
+            showNextAlert();
+        }
+
+
         // --- CAIXINHA ---
         function saveGoal() {
             goalData.name = document.getElementById('goal-name').value || 'Minha Meta';
             goalData.target = parseFloat(document.getElementById('goal-target').value) || 1;
-            updateGoalUI();
-            localStorage.setItem('myGoal', JSON.stringify(goalData));
+            updateGoalUI(); localStorage.setItem('myGoal', JSON.stringify(goalData));
         }
 
         function addToGoal() {
             let addVal = prompt("Quanto você quer depositar na caixinha?");
             if(addVal && !isNaN(addVal.replace(',','.'))) {
-                let val = parseFloat(addVal.replace(',','.'));
-                goalData.current += val;
-                let tempDate = new Date();
-                let d = String(tempDate.getDate()).padStart(2, '0'); let m = String(tempDate.getMonth() + 1).padStart(2, '0'); let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
+                let val = parseFloat(addVal.replace(',','.')); goalData.current += val;
+                let tempDate = new Date(); let d = String(tempDate.getDate()).padStart(2, '0'); let m = String(tempDate.getMonth() + 1).padStart(2, '0'); let formattedDate = `${tempDate.getFullYear()}-${m}-${d}`;
                 let syncId = Math.floor(Math.random() * 100000000); 
-                goalData.history.push({ id: syncId, amount: val, date: `${d}/${m}` });
-                saveGoal();
+                goalData.history.push({ id: syncId, amount: val, date: `${d}/${m}` }); saveGoal();
                 transactions.push({ id: syncId, text: '🎯 Depósito Caixinha', amount: -val, date: formattedDate, category: 'Outros', method: 'Pix/Dinheiro', debt: 'Nenhum' });
                 updateLocalStorage(); init();
             }
@@ -509,32 +671,20 @@
 
         function removeGoalDeposit(id) {
             let dep = goalData.history.find(d => d.id === id);
-            if(dep) {
-                goalData.current -= dep.amount;
-                goalData.history = goalData.history.filter(d => d.id !== id);
-                saveGoal();
-                transactions = transactions.filter(t => t.id !== id);
-                updateLocalStorage(); init();
-            }
+            if(dep) { goalData.current -= dep.amount; goalData.history = goalData.history.filter(d => d.id !== id); saveGoal(); transactions = transactions.filter(t => t.id !== id); updateLocalStorage(); init(); }
         }
 
         function updateGoalUI() {
-            let pct = (goalData.current / goalData.target) * 100;
-            if(isNaN(pct)) pct = 0; if(pct > 100) pct = 100;
+            let pct = (goalData.current / goalData.target) * 100; if(isNaN(pct)) pct = 0; if(pct > 100) pct = 100;
             document.getElementById('goal-bar').style.width = pct + '%';
             document.getElementById('goal-status').innerText = `Guardado: R$ ${goalData.current.toFixed(2).replace('.',',')} / R$ ${goalData.target.toFixed(2).replace('.',',')}`;
             goalHistoryList.innerHTML = '';
-            goalData.history.forEach(dep => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>📅 ${dep.date}</span><span class="goal-val">+ R$ ${parseFloat(dep.amount).toFixed(2).replace('.',',')}</span><button class="delete-btn" onclick="removeGoalDeposit(${dep.id})" style="width: 22px; height: 22px; font-size: 10px; margin-left: auto; margin-right: 0;">X</button>`;
-                goalHistoryList.appendChild(li);
-            });
+            goalData.history.forEach(dep => { goalHistoryList.innerHTML += `<li><span>📅 ${dep.date}</span><span class="goal-val">+ R$ ${parseFloat(dep.amount).toFixed(2).replace('.',',')}</span><button class="delete-btn" onclick="removeGoalDeposit(${dep.id})" style="width: 22px; height: 22px; font-size: 10px;">X</button></li>`; });
         }
 
         // --- CALENDÁRIO & LEMBRETES INTELIGENTES ---
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        let navDate = new Date();
-        let selDate = new Date();
+        let navDate = new Date(); let selDate = new Date();
 
         function renderCalendar() {
             const year = navDate.getFullYear(); const month = navDate.getMonth();
@@ -551,17 +701,11 @@
                 const isSelected = i === selDate.getDate() && month === selDate.getMonth() && year === selDate.getFullYear();
                 const hasEvent = reminders.some(r => r.date === dateStr);
                 
-                let classes = "calendar-day";
-                if(isToday) classes += " today";
-                if(isSelected) classes += " selected";
-                
+                let classes = "calendar-day"; if(isToday) classes += " today"; if(isSelected) classes += " selected";
                 let dot = hasEvent ? `<div class="event-dot"></div>` : '';
                 daysContainer.innerHTML += `<div class="${classes}" onclick="selectDate(${year}, ${month}, ${i})">${i}${dot}</div>`;
             }
-            
-            // Atualiza placeholder da caixa de texto para mostrar o dia escolhido
             document.getElementById('reminder-text').placeholder = `Adicionar em ${String(selDate.getDate()).padStart(2, '0')}/${String(selDate.getMonth() + 1).padStart(2, '0')}...`;
-            
             renderReminders();
         }
 
@@ -579,43 +723,22 @@
         function removeReminder(id) { reminders = reminders.filter(r => r.id !== id); updateLocalStorage(); renderCalendar(); }
 
         function renderReminders() {
-            const listUI = document.getElementById('reminders-list'); 
-            listUI.innerHTML = '';
-            
-            if(reminders.length === 0) { 
-                listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento agendado.</li>`; 
-                return; 
-            }
+            const listUI = document.getElementById('reminders-list'); listUI.innerHTML = '';
+            if(reminders.length === 0) { listUI.innerHTML = `<li style="text-align: center; color: var(--text-muted); font-size: 11px; padding: 10px 0;">Nenhum evento agendado.</li>`; return; }
 
-            // Ordena do mais antigo/próximo para o mais distante
             let sortedReminders = [...reminders].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            let today = new Date();
-            today.setHours(0, 0, 0, 0);
+            let today = new Date(); today.setHours(0, 0, 0, 0);
 
             sortedReminders.forEach(r => { 
                 let rDateParts = r.date.split('-');
-                let rDate = new Date(parseInt(rDateParts[0]), parseInt(rDateParts[1]) - 1, parseInt(rDateParts[2]));
-                rDate.setHours(0, 0, 0, 0);
-
-                let diffTime = rDate.getTime() - today.getTime();
-                let diffDays = Math.round(diffTime / (1000 * 3600 * 24));
-
-                let daysText = "";
-                let colorText = "var(--text-muted)";
+                let rDate = new Date(parseInt(rDateParts[0]), parseInt(rDateParts[1]) - 1, parseInt(rDateParts[2])); rDate.setHours(0, 0, 0, 0);
+                let diffTime = rDate.getTime() - today.getTime(); let diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+                let daysText = ""; let colorText = "var(--text-muted)";
                 
-                if(diffDays === 0) {
-                    daysText = "Hoje";
-                    colorText = "var(--green)";
-                } else if (diffDays === 1) {
-                    daysText = "Amanhã";
-                    colorText = "var(--blue)";
-                } else if (diffDays > 1) {
-                    daysText = `Faltam ${diffDays} dias`;
-                } else {
-                    daysText = `Passou há ${Math.abs(diffDays)} dias`;
-                    colorText = "var(--red)";
-                }
+                if(diffDays === 0) { daysText = "Hoje"; colorText = "var(--green)"; } 
+                else if (diffDays === 1) { daysText = "Amanhã"; colorText = "var(--blue)"; } 
+                else if (diffDays > 1) { daysText = `Faltam ${diffDays} dias`; } 
+                else { daysText = `Passou há ${Math.abs(diffDays)} dias`; colorText = "var(--red)"; }
 
                 let formattedDate = `${String(rDate.getDate()).padStart(2, '0')}/${String(rDate.getMonth() + 1).padStart(2, '0')}/${rDate.getFullYear()}`;
 
@@ -626,51 +749,29 @@
                             <button class="delete-btn" onclick="removeReminder(${r.id})" style="width: 22px; height: 22px; font-size: 10px; flex-shrink: 0;">X</button>
                         </div>
                         <div style="display: flex; justify-content: space-between; width: 100%; font-size: 10px; color: ${colorText};">
-                            <span>📅 ${formattedDate}</span>
-                            <span style="font-weight: bold;">${daysText}</span>
+                            <span>📅 ${formattedDate}</span><span style="font-weight: bold;">${daysText}</span>
                         </div>
                     </li>
                 `; 
             });
         }
 
-        // --- COMPRAS PARCELADAS INTELIGENTES ---
+        // --- COMPRAS PARCELADAS ---
         function renderInstallments() {
-            const container = document.getElementById('installments-list');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            let groups = {};
-            let today = new Date();
-            let currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const container = document.getElementById('installments-list'); if(!container) return; container.innerHTML = '';
+            let groups = {}; let today = new Date(); let currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
             
             transactions.forEach(t => {
                 let match = t.text.match(/(.+?)\s*\((\d+)\/(\d+)\)$/);
                 if(match) {
-                    let baseName = match[1].trim();
-                    let currentInst = parseInt(match[2]);
-                    let totalInst = parseInt(match[3]);
-                    
+                    let baseName = match[1].trim(); let totalInst = parseInt(match[3]);
                     let person = t.debt !== 'Nenhum' ? t.debt : 'Meu Cartão';
                     let key = baseName + '_' + person + '_' + totalInst + '_' + Math.abs(t.amount);
                     
-                    if(!groups[key]) {
-                        groups[key] = { 
-                            name: baseName, 
-                            person: person, 
-                            total: totalInst, 
-                            remaining: 0,
-                            amount: Math.abs(t.amount)
-                        };
-                    }
-                    
+                    if(!groups[key]) groups[key] = { name: baseName, person: person, total: totalInst, remaining: 0, amount: Math.abs(t.amount) };
                     if(t.date && t.date.includes('-')) {
-                        let tDateParts = t.date.split('-');
-                        let tDate = new Date(parseInt(tDateParts[0]), parseInt(tDateParts[1]) - 1, parseInt(tDateParts[2]));
-                        
-                        if(tDate >= currentMonthStart) {
-                            groups[key].remaining++;
-                        }
+                        let tDateParts = t.date.split('-'); let tDate = new Date(parseInt(tDateParts[0]), parseInt(tDateParts[1]) - 1, parseInt(tDateParts[2]));
+                        if(tDate >= currentMonthStart) groups[key].remaining++;
                     }
                 }
             });
@@ -679,30 +780,16 @@
             for(let key in groups) {
                 let g = groups[key];
                 if(g.remaining > 0) {
-                    hasActive = true;
-                    let pct = ((g.total - g.remaining) / g.total) * 100;
-                    
+                    hasActive = true; let pct = ((g.total - g.remaining) / g.total) * 100;
                     container.innerHTML += `
                         <div class="debt-card" style="border-color: var(--orange);">
-                            <div class="debt-header">
-                                <span class="debt-company" style="font-size: 14px;">🛒 ${g.name}</span>
-                                <span class="badge" style="background: var(--orange); color: #000; font-weight: bold;">${g.person}</span>
-                            </div>
-                            <div class="debt-details">
-                                <strong>Valor da Parcela:</strong> R$ ${g.amount.toFixed(2).replace('.', ',')}<br>
-                                <strong>Faltam:</strong> ${g.remaining} de ${g.total} parcelas
-                            </div>
-                            <div class="debt-progress-container">
-                                <div class="debt-progress-bar" style="width: ${pct}%; background: var(--orange);"></div>
-                            </div>
-                        </div>
-                    `;
+                            <div class="debt-header"><span class="debt-company" style="font-size: 14px;">🛒 ${g.name}</span><span class="badge" style="background: var(--orange); color: #000; font-weight: bold;">${g.person}</span></div>
+                            <div class="debt-details"><strong>Valor da Parcela:</strong> R$ ${g.amount.toFixed(2).replace('.', ',')}<br><strong>Faltam:</strong> ${g.remaining} de ${g.total} parcelas</div>
+                            <div class="debt-progress-container"><div class="debt-progress-bar" style="width: ${pct}%; background: var(--orange);"></div></div>
+                        </div>`;
                 }
             }
-            
-            if(!hasActive) {
-                container.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); padding: 10px;">Nenhuma compra parcelada ativa encontrada no momento.</p>';
-            }
+            if(!hasActive) container.innerHTML = '<p style="font-size: 12px; color: var(--text-muted); padding: 10px;">Nenhuma compra parcelada ativa encontrada.</p>';
         }
 
         // --- DÍVIDAS EMPRESARIAIS ---
@@ -710,8 +797,7 @@
             e.preventDefault();
             const company = document.getElementById('debt-company').value; const total = parseFloat(document.getElementById('debt-total').value); const installments = parseInt(document.getElementById('debt-installments').value);
             companyDebts.push({ id: Math.floor(Math.random() * 100000000), company: company, totalAmount: total, installments: installments, paidInstallments: 0 });
-            document.getElementById('debt-company').value = ''; document.getElementById('debt-total').value = ''; document.getElementById('debt-installments').value = '';
-            updateLocalStorage(); init();
+            document.getElementById('debt-company').value = ''; document.getElementById('debt-total').value = ''; document.getElementById('debt-installments').value = ''; updateLocalStorage(); init();
         }
 
         function renderDebts() {
@@ -726,8 +812,7 @@
                     <div style="font-size: 11px; margin-bottom: 3px;">Progresso: ${debt.paidInstallments}/${debt.installments} parcelas</div>
                     <div class="debt-progress-container"><div class="debt-progress-bar" style="width: ${pct}%"></div></div>
                     <div class="debt-actions"><button class="btn-pay-debt" ${isFinished ? 'disabled' : ''} onclick="payDebtInstallment(${debt.id}, '${debt.company}', ${installmentValue})">${isFinished ? '✅ Quitado' : '💳 Pagar Parcela'}</button></div>
-                `;
-                debtsListUI.appendChild(card);
+                `; debtsListUI.appendChild(card);
             });
             totalCompanyDebtUI.innerText = `R$ ${totalRemaining.toFixed(2).replace('.', ',')}`;
         }
@@ -738,17 +823,13 @@
                 if(debt) {
                     debt.paidInstallments += 1;
                     let tempDate = new Date(); let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
-                    transactions.push({ id: Math.floor(Math.random() * 100000000), text: `Pagamento: ${company} (${debt.paidInstallments}/${debt.installments})`, amount: -value, date: formattedDate, category: 'Casa', method: 'Pix/Dinheiro', debt: 'Nenhum' });
-                    updateLocalStorage(); init();
+                    transactions.push({ id: Math.floor(Math.random() * 100000000), text: `Pagamento: ${company} (${debt.paidInstallments}/${debt.installments})`, amount: -value, date: formattedDate, category: 'Casa', method: 'Pix/Dinheiro', debt: 'Nenhum' }); updateLocalStorage(); init();
                 }
             }
         }
+        function deleteCompanyDebt(id) { if(confirm("Apagar dívida? (Os pagamentos no histórico não sumirão)")) { companyDebts = companyDebts.filter(d => d.id !== id); updateLocalStorage(); init(); } }
 
-        function deleteCompanyDebt(id) {
-            if(confirm("Tem certeza que deseja apagar este registro de dívida? (Isso não apaga os pagamentos já feitos no histórico)")) { companyDebts = companyDebts.filter(d => d.id !== id); updateLocalStorage(); init(); }
-        }
-
-        // --- TRANSAÇÕES PRINCIPAIS ---
+        // --- TRANSAÇÕES ---
         function animateCoinAndSave(transactionDataArr) {
             const wrapper = document.createElement('div'); wrapper.className = 'coin-wrapper'; const coin = document.createElement('div'); coin.className = 'coin-anim'; wrapper.appendChild(coin);
             const btnRect = submitBtn.getBoundingClientRect(); wrapper.style.left = (btnRect.left + btnRect.width/2 - 10) + 'px'; wrapper.style.top = (btnRect.top + btnRect.height/2 - 10) + 'px'; document.body.appendChild(wrapper);
@@ -760,31 +841,22 @@
         function addTransaction(e) {
             e.preventDefault();
             let totalAmount = parseFloat(amountInput.value); let numInstallments = parseInt(document.getElementById('installments').value); totalAmount = typeInput.value === 'minus' ? -Math.abs(totalAmount) : Math.abs(totalAmount); let installmentAmount = totalAmount / numInstallments;
-            let dateParts = document.getElementById('date').value.split('-'); let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]);
-            let newTransactions = [];
+            let dateParts = document.getElementById('date').value.split('-'); let year = parseInt(dateParts[0]), month = parseInt(dateParts[1]) - 1, day = parseInt(dateParts[2]); let newTransactions = [];
             for(let i = 0; i < numInstallments; i++) {
                 let tempDate = new Date(year, month + i, day); let formattedDate = `${tempDate.getFullYear()}-${String(tempDate.getMonth() + 1).padStart(2, '0')}-${String(tempDate.getDate()).padStart(2, '0')}`;
                 let textSuffix = numInstallments > 1 ? ` (${i+1}/${numInstallments})` : '';
                 newTransactions.push({ id: Math.floor(Math.random() * 100000000), text: textInput.value + textSuffix, amount: installmentAmount, date: formattedDate, category: categoryInput.value || 'Outros', method: document.getElementById('payment-method').value, debt: document.getElementById('debt-to').value });
             }
-            animateCoinAndSave(newTransactions);
-            textInput.value = ''; amountInput.value = ''; document.getElementById('installments').value = '1'; categoryInput.value = '';
+            animateCoinAndSave(newTransactions); textInput.value = ''; amountInput.value = ''; document.getElementById('installments').value = '1'; categoryInput.value = '';
         }
 
-        function getCategoryIcon(catName) {
-            if(catName === 'Casa') return '🏠'; if(catName === 'Carro') return '🚗'; if(catName === 'Saidas') return '🍻';
-            if(catName === 'Lazer') return '🎮'; if(catName === 'Supermercado') return '🛒'; if(catName === 'Salario') return '💼'; return '💸';
-        }
+        function getCategoryIcon(catName) { if(catName === 'Casa') return '🏠'; if(catName === 'Carro') return '🚗'; if(catName === 'Saidas') return '🍻'; if(catName === 'Lazer') return '🎮'; if(catName === 'Supermercado') return '🛒'; if(catName === 'Salario') return '💼'; return '💸'; }
 
         function addTransactionDOM(transaction) {
             const sign = transaction.amount < 0 ? '-' : '+'; const item = document.createElement('li'); item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
             let debtBadge = transaction.debt !== 'Nenhum' ? `<span class="badge" style="color:var(--orange);border-color:var(--orange)">Dívida: ${transaction.debt}</span>` : '';
-            let dateBR = "Sem data"; if(transaction.date && transaction.date.includes('-')) { dateBR = transaction.date.split('-').reverse().join('/'); }
-            let catIcon = getCategoryIcon(transaction.category);
-            item.innerHTML = `
-                <div class="item-info"><span class="item-title">${catIcon} ${transaction.text}</span><span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span></div>
-                <div class="item-actions"><span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span><button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button></div>
-            `;
+            let dateBR = "Sem data"; if(transaction.date && transaction.date.includes('-')) { dateBR = transaction.date.split('-').reverse().join('/'); } let catIcon = getCategoryIcon(transaction.category);
+            item.innerHTML = `<div class="item-info"><span class="item-title">${catIcon} ${transaction.text}</span><span class="item-meta"><span class="badge">${transaction.method}</span> ${debtBadge} • ${dateBR}</span></div><div class="item-actions"><span style="font-weight:600; font-size:16px;">${sign} R$ ${Math.abs(transaction.amount).toFixed(2).replace('.', ',')}</span><button class="delete-btn" onclick="removeTransaction(${transaction.id})">X</button></div>`;
             list.prepend(item);
         }
 
@@ -792,31 +864,19 @@
             const amounts = filtered.map(t => parseFloat(t.amount) || 0); const total = amounts.reduce((acc, item) => acc + item, 0).toFixed(2);
             const income = amounts.filter(item => item > 0).reduce((acc, item) => acc + item, 0).toFixed(2); const expense = (amounts.filter(item => item < 0).reduce((acc, item) => acc + item, 0) * -1).toFixed(2);
             const oldDebt = transactions.filter(t => t.debt !== 'Nenhum' && t.amount < 0).map(t => parseFloat(t.amount) || 0).reduce((acc, item) => acc + item, 0) * -1;
-            
             balance.innerText = `R$ ${total.replace('.', ',')}`; money_plus.innerText = `+ R$ ${income.replace('.', ',')}`; money_minus.innerText = `- R$ ${expense.replace('.', ',')}`; money_debt.innerText = `R$ ${oldDebt.toFixed(2).replace('.', ',')}`;
         }
 
-        function removeTransaction(id) { 
-            transactions = transactions.filter(t => t.id !== id); 
-            let dep = goalData.history.find(d => d.id === id); if(dep) { goalData.current -= dep.amount; goalData.history = goalData.history.filter(d => d.id !== id); saveGoal(); }
-            updateLocalStorage(); init(); 
-        }
+        function removeTransaction(id) { transactions = transactions.filter(t => t.id !== id); let dep = goalData.history.find(d => d.id === id); if(dep) { goalData.current -= dep.amount; goalData.history = goalData.history.filter(d => d.id !== id); saveGoal(); } updateLocalStorage(); init(); }
 
         function init() {
             try {
                 list.innerHTML = '';
                 const selMonth = monthFilter.value;
                 const filtered = selMonth === 'all' ? transactions : transactions.filter(t => { if(!t || !t.date || !t.date.includes('-')) return false; return t.date.split('-')[1] === selMonth; });
-                
                 filtered.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-                
                 filtered.forEach(addTransactionDOM);
-                
-                updateValues(filtered);
-                updateGoalUI();
-                renderDebts();
-                renderCalendar();
-                renderInstallments(); 
+                updateValues(filtered); updateGoalUI(); renderDebts(); renderCalendar(); renderInstallments(); renderPendencies(); checkAlerts();
             } catch(e) {}
         }
 
